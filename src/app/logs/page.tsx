@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/components/Sidebar";
+import { MobileNav } from "@/components/MobileNav";
 import { Card, CardHeader, CardContent } from "@/components/Card";
 import { Badge } from "@/components/Badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -59,60 +60,68 @@ const logs = [
 export default function LogsPage() {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-[var(--background)]">
-        <Sidebar activePage="logs" />
-
-      <main className="flex-1 p-8 lg:p-10 overflow-auto">
-        <div className="mb-6">
-          <h1 className="font-primary text-2xl font-semibold text-[var(--foreground)]">
-            System Logs
-          </h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Real-time activity and event logs
-          </p>
+      <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+        <div className="hidden lg:block">
+          <Sidebar activePage="logs" />
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h2 className="font-primary text-base font-semibold text-[var(--foreground)]">
-                Recent Activity
-              </h2>
-              <Badge variant="success">Live</Badge>
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <MobileNav activePage="logs" />
+
+          <div className="flex-1 p-4 lg:p-10 overflow-auto">
+            <div className="mb-4 lg:mb-6">
+              <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
+                System Logs
+              </h1>
+              <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
+                Real-time activity and event logs
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 font-mono text-sm">
-              {logs.map((log, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-4 py-2 border-b border-[var(--border)] last:border-0"
-                >
-                  <span className="text-[var(--muted-foreground)] w-20 flex-shrink-0">
-                    {log.timestamp}
-                  </span>
-                  <Badge
-                    variant={
-                      log.level === "ERROR"
-                        ? "default"
-                        : log.level === "WARN"
-                        ? "secondary"
-                        : "success"
-                    }
-                    className="w-14 justify-center"
-                  >
-                    {log.level}
-                  </Badge>
-                  <span className="text-[var(--primary)] w-24 flex-shrink-0">
-                    [{log.agent}]
-                  </span>
-                  <span className="text-[var(--foreground)]">{log.message}</span>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
+                    Recent Activity
+                  </h2>
+                  <Badge variant="success">Live</Badge>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </main>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 font-mono text-xs lg:text-sm">
+                  {logs.map((log, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col lg:flex-row lg:items-start gap-1 lg:gap-4 py-2 border-b border-[var(--border)] last:border-0"
+                    >
+                      <div className="flex items-center gap-2 lg:gap-4">
+                        <span className="text-[var(--muted-foreground)] w-16 lg:w-20 flex-shrink-0">
+                          {log.timestamp}
+                        </span>
+                        <Badge
+                          variant={
+                            log.level === "ERROR"
+                              ? "error"
+                              : log.level === "WARN"
+                              ? "warning"
+                              : "success"
+                          }
+                          className="w-12 lg:w-14 justify-center text-[10px] lg:text-xs"
+                        >
+                          {log.level}
+                        </Badge>
+                        <span className="text-[var(--primary)] w-20 lg:w-24 flex-shrink-0 truncate">
+                          [{log.agent}]
+                        </span>
+                      </div>
+                      <span className="text-[var(--foreground)] pl-0 lg:pl-0">{log.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     </ProtectedRoute>
   );
