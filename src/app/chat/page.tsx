@@ -30,9 +30,36 @@ export default function ChatPage() {
 }
 
 function ChatContent() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Load from localStorage on mount
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("fugue-chat-history");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Restore Date objects
+          return parsed.map((msg: Message) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+        } catch {
+          return [];
+        }
+      }
+    }
+    return [];
+  });
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Save to localStorage when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Keep only last 50 messages to avoid storage bloat
+      const toSave = messages.slice(-50);
+      localStorage.setItem("fugue-chat-history", JSON.stringify(toSave));
+    }
+  }, [messages]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
