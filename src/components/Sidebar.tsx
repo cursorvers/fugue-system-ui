@@ -30,12 +30,12 @@ const navigationSections: SidebarSection[] = [
     ],
   },
   {
-    title: "Execution Tier",
+    title: "Settings",
     items: [
-      { icon: "code", label: "Codex", href: "#" },
-      { icon: "psychology", label: "GLM-4.7", href: "#" },
-      { icon: "stars", label: "Gemini", href: "#" },
-      { icon: "design_services", label: "Pencil", href: "#" },
+      { icon: "palette", label: "Appearance", href: "/settings/appearance" },
+      { icon: "notifications_active", label: "Notifications", href: "/settings/notifications" },
+      { icon: "person", label: "Account", href: "/settings/account" },
+      { icon: "help", label: "Help", href: "/settings/help" },
     ],
   },
 ];
