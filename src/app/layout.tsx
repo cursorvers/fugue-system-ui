@@ -5,6 +5,17 @@ import { AuthProvider } from "@/contexts/AuthContext";
 export const metadata: Metadata = {
   title: "FUGUE System",
   description: "Federated Unified Governance for Universal Execution",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "FUGUE",
+  },
+  icons: {
+    icon: "/icon-512.svg",
+    apple: "/icon-192.svg",
+  },
 };
 
 export default function RootLayout({
