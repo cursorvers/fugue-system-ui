@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface NavItem {
   icon: string;
@@ -23,7 +24,7 @@ const navigationSections: SidebarSection[] = [
       { icon: "dashboard", label: "Dashboard", href: "/" },
       { icon: "smart_toy", label: "Agents", href: "/agents" },
       { icon: "task_alt", label: "Tasks", href: "/tasks" },
-      { icon: "receipt_long", label: "Logs", href: "/logs" },
+      { icon: "notifications", label: "Notifications", href: "/notifications" },
       { icon: "chat", label: "Chat", href: "/chat" },
     ],
   },
@@ -45,6 +46,7 @@ interface SidebarProps {
 
 export function Sidebar({ activePage = "dashboard", className }: SidebarProps) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
   const isActive = (href: string) => {
@@ -119,6 +121,15 @@ export function Sidebar({ activePage = "dashboard", className }: SidebarProps) {
               {user?.email || ""}
             </p>
           </div>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-[var(--sidebar-accent)] transition-colors"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <span className="material-symbols-sharp text-[var(--sidebar-foreground)]">
+              {theme === "dark" ? "light_mode" : "dark_mode"}
+            </span>
+          </button>
           <button
             onClick={handleLogout}
             className="p-2 rounded-lg hover:bg-[var(--sidebar-accent)] transition-colors"

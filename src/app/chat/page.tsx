@@ -249,12 +249,14 @@ function ChatContent() {
         <Sidebar activePage="chat" />
       </div>
 
-      <main className="flex-1 flex flex-col p-4 lg:p-10 min-h-0 overflow-hidden">
-        <div className="mb-4 lg:mb-6">
-          <div className="flex items-center gap-3">
-            <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-              Chat with Orchestrator
-            </h1>
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Mobile header */}
+        <div className="lg:hidden flex items-center justify-between p-3 border-b border-[var(--border)] bg-[var(--sidebar)]">
+          <a href="/" className="flex items-center gap-2 text-[var(--foreground)]">
+            <span className="material-symbols-sharp text-xl">arrow_back</span>
+            <span className="text-sm font-medium">Home</span>
+          </a>
+          <div className="flex items-center gap-2">
             <span
               className={`w-2 h-2 rounded-full ${
                 isConnected
@@ -263,10 +265,31 @@ function ChatContent() {
                   ? "bg-yellow-500 animate-pulse"
                   : "bg-red-500"
               }`}
-              title={isConnected ? "Connected" : isConnecting ? "Connecting..." : "Disconnected"}
             />
+            <span className="text-xs text-[var(--muted-foreground)]">
+              {isConnected ? "Online" : "Offline"}
+            </span>
           </div>
-          <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
+        </div>
+
+        <div className="flex-1 flex flex-col p-4 lg:p-10 min-h-0 overflow-hidden">
+          <div className="mb-4 lg:mb-6 hidden lg:block">
+            <div className="flex items-center gap-3">
+              <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
+                Chat with Orchestrator
+              </h1>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isConnected
+                    ? "bg-green-500"
+                    : isConnecting
+                    ? "bg-yellow-500 animate-pulse"
+                    : "bg-red-500"
+                }`}
+                title={isConnected ? "Connected" : isConnecting ? "Connecting..." : "Disconnected"}
+              />
+            </div>
+            <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
             {isConnected
               ? "Send commands and receive responses from FUGUE"
               : error || "Connecting to server..."}
@@ -318,6 +341,7 @@ function ChatContent() {
             </div>
           </div>
         </Card>
+        </div>
       </main>
     </div>
   );
