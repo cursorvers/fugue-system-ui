@@ -44,6 +44,20 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Store callbacks in refs to avoid reconnection loops
+  const onMessageRef = useRef(onMessage);
+  const onOpenRef = useRef(onOpen);
+  const onCloseRef = useRef(onClose);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when callbacks change (without triggering reconnect)
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+    onOpenRef.current = onOpen;
+    onCloseRef.current = onClose;
+    onErrorRef.current = onError;
+  }, [onMessage, onOpen, onClose, onError]);
+
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,13 +81,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
         // Request initial status
         ws.send(JSON.stringify({ type: "status-request" }));
 
-        onOpen?.();
+        onOpenRef.current?.();
       };
 
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
-          onMessage?.(message);
+          onMessageRef.current?.(message);
         } catch (e) {
           console.error("[useWebSocket] Failed to parse message:", e);
         }
@@ -100,13 +114,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
           setError("Connection failed. Server may require authentication.");
         }
 
-        onClose?.();
+        onCloseRef.current?.();
       };
 
       ws.onerror = (event) => {
         setError("WebSocket connection error");
         setIsConnecting(false);
-        onError?.(event);
+        onErrorRef.current?.(event);
       };
 
       wsRef.current = ws;
@@ -114,7 +128,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
       setError(e instanceof Error ? e.message : "Failed to connect");
       setIsConnecting(false);
     }
-  }, [url, reconnectInterval, maxReconnectAttempts, onMessage, onOpen, onClose, onError]);
+  }, [url, reconnectInterval, maxReconnectAttempts]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
