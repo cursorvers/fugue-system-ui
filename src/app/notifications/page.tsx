@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
-import { Card, CardHeader, CardContent } from "@/components/Card";
+import { Card, CardContent } from "@/components/Card";
 import { Badge } from "@/components/Badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -15,6 +15,9 @@ interface Notification {
   timestamp: Date;
   source: string;
   read: boolean;
+  details?: string;
+  stackTrace?: string;
+  metadata?: Record<string, string>;
 }
 
 export default function NotificationsPage() {
@@ -45,6 +48,7 @@ function NotificationsContent() {
   });
 
   const [filter, setFilter] = useState<"all" | "error" | "warning" | "info" | "success">("all");
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
   useEffect(() => {
     localStorage.setItem("fugue-notifications", JSON.stringify(notifications));
@@ -54,10 +58,13 @@ function NotificationsContent() {
     (n) => filter === "all" || n.type === filter
   );
 
-  const markAsRead = (id: string) => {
+  const handleSelectNotification = (notification: Notification) => {
+    // Mark as read
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
     );
+    // Open detail
+    setSelectedNotification(notification);
   };
 
   const markAllAsRead = () => {
@@ -66,6 +73,11 @@ function NotificationsContent() {
 
   const clearAll = () => {
     setNotifications([]);
+  };
+
+  const deleteNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setSelectedNotification(null);
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -158,7 +170,7 @@ function NotificationsContent() {
                     <NotificationItem
                       key={notification.id}
                       notification={notification}
-                      onMarkAsRead={() => markAsRead(notification.id)}
+                      onSelect={() => handleSelectNotification(notification)}
                     />
                   ))}
                 </div>
@@ -167,16 +179,25 @@ function NotificationsContent() {
           </Card>
         </div>
       </main>
+
+      {/* Detail Modal */}
+      {selectedNotification && (
+        <NotificationDetailModal
+          notification={selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+          onDelete={() => deleteNotification(selectedNotification.id)}
+        />
+      )}
     </div>
   );
 }
 
 function NotificationItem({
   notification,
-  onMarkAsRead,
+  onSelect,
 }: {
   notification: Notification;
-  onMarkAsRead: () => void;
+  onSelect: () => void;
 }) {
   const typeConfig = {
     error: {
@@ -205,7 +226,11 @@ function NotificationItem({
 
   return (
     <div
-      onClick={onMarkAsRead}
+      onClick={onSelect}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && onSelect()}
+      aria-label={`${notification.type}: ${notification.title}`}
       className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
         notification.read
           ? "bg-transparent hover:bg-[var(--sidebar)]"
@@ -236,13 +261,18 @@ function NotificationItem({
               {notification.type}
             </Badge>
           </div>
-          {!notification.read && (
-            <span className="w-2 h-2 rounded-full bg-[var(--primary)] flex-shrink-0 mt-1.5" />
-          )}
+          <div className="flex items-center gap-2">
+            {!notification.read && (
+              <span className="w-2 h-2 rounded-full bg-[var(--primary)] flex-shrink-0" />
+            )}
+            <span className="material-symbols-sharp text-[var(--muted-foreground)] text-base">
+              chevron_right
+            </span>
+          </div>
         </div>
 
         <p
-          className={`text-xs lg:text-sm mt-1 ${
+          className={`text-xs lg:text-sm mt-1 line-clamp-1 ${
             notification.read
               ? "text-[var(--muted-foreground)]"
               : "text-[var(--foreground)]"
@@ -258,6 +288,176 @@ function NotificationItem({
         </div>
       </div>
     </div>
+  );
+}
+
+function NotificationDetailModal({
+  notification,
+  onClose,
+  onDelete,
+}: {
+  notification: Notification;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
+  const typeConfig = {
+    error: {
+      icon: "error",
+      iconBg: "bg-red-500",
+      badge: "error" as const,
+      color: "text-red-500",
+    },
+    warning: {
+      icon: "warning",
+      iconBg: "bg-yellow-500",
+      badge: "warning" as const,
+      color: "text-yellow-500",
+    },
+    info: {
+      icon: "info",
+      iconBg: "bg-blue-500",
+      badge: "info" as const,
+      color: "text-blue-500",
+    },
+    success: {
+      icon: "check_circle",
+      iconBg: "bg-green-500",
+      badge: "success" as const,
+      color: "text-green-500",
+    },
+  };
+
+  const config = typeConfig[notification.type];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 z-40"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal - Bottom sheet on mobile, centered on desktop */}
+      <div
+        className="fixed inset-x-0 bottom-0 lg:inset-auto lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-50 lg:w-[500px] lg:max-w-[90vw]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notification-title"
+      >
+        <div className="bg-[var(--card)] rounded-t-2xl lg:rounded-2xl max-h-[80vh] flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${config.iconBg}`}
+              >
+                <span className="material-symbols-sharp text-white">{config.icon}</span>
+              </div>
+              <div>
+                <h2
+                  id="notification-title"
+                  className="font-primary text-base font-semibold text-[var(--foreground)]"
+                >
+                  {notification.title}
+                </h2>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <Badge variant={config.badge} className="text-[10px]">
+                    {notification.type.toUpperCase()}
+                  </Badge>
+                  <span className="text-xs text-[var(--muted-foreground)]">
+                    {notification.source}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-[var(--sidebar)] transition-colors"
+              aria-label="Close"
+            >
+              <span className="material-symbols-sharp text-[var(--muted-foreground)]">close</span>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Timestamp */}
+            <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+              <span className="material-symbols-sharp text-sm">schedule</span>
+              <span>{notification.timestamp.toLocaleString()}</span>
+            </div>
+
+            {/* Message */}
+            <div>
+              <h3 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+                Message
+              </h3>
+              <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                {notification.message}
+              </p>
+            </div>
+
+            {/* Details */}
+            {notification.details && (
+              <div>
+                <h3 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+                  Details
+                </h3>
+                <p className="text-sm text-[var(--foreground)] leading-relaxed">
+                  {notification.details}
+                </p>
+              </div>
+            )}
+
+            {/* Stack Trace */}
+            {notification.stackTrace && (
+              <div>
+                <h3 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+                  Stack Trace
+                </h3>
+                <pre className="text-xs text-[var(--muted-foreground)] bg-[var(--sidebar)] p-3 rounded-lg overflow-x-auto font-mono">
+                  {notification.stackTrace}
+                </pre>
+              </div>
+            )}
+
+            {/* Metadata */}
+            {notification.metadata && Object.keys(notification.metadata).length > 0 && (
+              <div>
+                <h3 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+                  Metadata
+                </h3>
+                <div className="bg-[var(--sidebar)] rounded-lg p-3 space-y-2">
+                  {Object.entries(notification.metadata).map(([key, value]) => (
+                    <div key={key} className="flex justify-between text-xs">
+                      <span className="text-[var(--muted-foreground)]">{key}</span>
+                      <span className="text-[var(--foreground)] font-mono">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 p-4 border-t border-[var(--border)]">
+            <button
+              onClick={onDelete}
+              className="flex-1 px-4 py-2.5 text-sm bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 text-sm bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -286,6 +486,12 @@ function getDefaultNotifications(): Notification[] {
       timestamp: new Date(now.getTime() - 300000),
       source: "Orchestrator",
       read: false,
+      details: "All subsystems are operational. Connected to 4 execution tier agents.",
+      metadata: {
+        "Version": "1.0.0",
+        "Environment": "Production",
+        "Region": "ap-northeast-1",
+      },
     },
     {
       id: "2",
@@ -295,6 +501,12 @@ function getDefaultNotifications(): Notification[] {
       timestamp: new Date(now.getTime() - 600000),
       source: "Agent Manager",
       read: false,
+      details: "Codex agent successfully authenticated and registered with the orchestrator.",
+      metadata: {
+        "Agent ID": "codex-001",
+        "Capabilities": "design, security, analysis",
+        "Status": "READY",
+      },
     },
     {
       id: "3",
@@ -304,6 +516,12 @@ function getDefaultNotifications(): Notification[] {
       timestamp: new Date(now.getTime() - 1800000),
       source: "Performance Monitor",
       read: true,
+      details: "The GLM-4.7 agent is experiencing higher than normal response times. This may be due to high load or network issues.",
+      metadata: {
+        "Average Latency": "2.4s",
+        "Threshold": "2.0s",
+        "Samples": "15",
+      },
     },
     {
       id: "4",
@@ -313,6 +531,16 @@ function getDefaultNotifications(): Notification[] {
       timestamp: new Date(now.getTime() - 3600000),
       source: "WebSocket Manager",
       read: true,
+      details: "The WebSocket connection was unexpectedly closed. The system will attempt to reconnect automatically.",
+      stackTrace: `Error: WebSocket connection closed
+  at WebSocketManager.handleClose (websocket.ts:145)
+  at WebSocket.onclose (websocket.ts:89)
+  at callEventTarget (native)`,
+      metadata: {
+        "Close Code": "1006",
+        "Reason": "Abnormal closure",
+        "Reconnect Attempts": "3",
+      },
     },
   ];
 }

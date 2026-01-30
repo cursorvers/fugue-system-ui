@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Logo } from "@/components/Logo";
 
 interface NavItem {
   icon: string;
@@ -68,11 +69,8 @@ export function Sidebar({ activePage = "dashboard", className }: SidebarProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-center h-[88px] px-8 py-6 border-b border-[var(--sidebar-border)]">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[var(--primary)]" />
-          <span className="font-primary text-lg font-bold text-[var(--primary)]">
-            FUGUE
-          </span>
+        <Link href="/">
+          <Logo size="lg" />
         </Link>
       </div>
 

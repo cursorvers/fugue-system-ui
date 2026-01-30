@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Logo } from "@/components/Logo";
 
 interface NavItem {
   icon: string;
@@ -79,9 +80,8 @@ export function MobileNav({ activePage = "dashboard", className }: MobileNavProp
           <span className="material-symbols-sharp text-[var(--foreground)]">menu</span>
         </button>
 
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-[var(--primary)]" />
-          <span className="font-primary text-base font-bold text-[var(--primary)]">FUGUE</span>
+        <Link href="/">
+          <Logo size="sm" />
         </Link>
 
         <Link
@@ -109,9 +109,8 @@ export function MobileNav({ activePage = "dashboard", className }: MobileNavProp
       >
         {/* Header */}
         <div className="flex items-center justify-between h-[64px] px-4 border-b border-[var(--sidebar-border)]">
-          <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-            <div className="w-7 h-7 rounded-lg bg-[var(--primary)]" />
-            <span className="font-primary text-lg font-bold text-[var(--primary)]">FUGUE</span>
+          <Link href="/" onClick={() => setIsOpen(false)}>
+            <Logo size="md" />
           </Link>
           <button
             onClick={() => setIsOpen(false)}
