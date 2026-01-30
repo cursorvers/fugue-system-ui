@@ -4,27 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { MetricCard, Card, CardHeader, CardContent } from "@/components/Card";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
-
-const sidebarSections = [
-  {
-    title: "Orchestrator",
-    items: [
-      { icon: "dashboard", label: "Dashboard", active: true },
-      { icon: "smart_toy", label: "Agents" },
-      { icon: "task_alt", label: "Tasks" },
-      { icon: "receipt_long", label: "Logs" },
-    ],
-  },
-  {
-    title: "Execution Tier",
-    items: [
-      { icon: "code", label: "Codex" },
-      { icon: "psychology", label: "GLM-4.7" },
-      { icon: "stars", label: "Gemini" },
-      { icon: "design_services", label: "Pencil" },
-    ],
-  },
-];
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const agents = [
   { name: "Codex", description: "Design, Security, Analysis", status: "Online", color: "#FF8400" },
@@ -43,12 +23,9 @@ const recentTasks = [
 
 export default function Dashboard() {
   return (
-    <div className="flex h-full bg-[var(--background)]">
-      <Sidebar
-        logo="FUGUE"
-        sections={sidebarSections}
-        footer={{ name: "Joe Doe", email: "joe@acmecorp.com" }}
-      />
+    <ProtectedRoute>
+      <div className="flex h-screen bg-[var(--background)]">
+        <Sidebar activePage="dashboard" />
 
       <main className="flex-1 flex flex-col gap-8 p-10 overflow-auto">
         {/* Header */}
@@ -139,6 +116,7 @@ export default function Dashboard() {
           </Card>
         </div>
       </main>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
