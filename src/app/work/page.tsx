@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { Card, CardHeader, CardContent } from "@/components/Card";
@@ -11,196 +11,67 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // --- Types ---
 
 interface Quota {
-  used: number;
-  limit: number;
-  unit: string;
-  period?: string;
+  readonly used: number;
+  readonly limit: number;
+  readonly unit: string;
+  readonly period?: string;
 }
 
 interface Agent {
-  name: string;
-  role: string;
-  description: string;
-  status: "Online" | "Idle" | "Offline";
-  color: string;
-  tasks: number;
-  successRate: string;
-  quota: Quota;
-  quotas?: Quota[];
+  readonly name: string;
+  readonly role: string;
+  readonly status: "active" | "idle" | "offline";
+  readonly tasks: number;
+  readonly successRate: string;
+  readonly quota: Quota;
 }
 
 interface Task {
-  id: string;
-  name: string;
-  agent: string;
-  status: "Completed" | "In Progress" | "Queued";
-  time: string;
+  readonly id: string;
+  readonly name: string;
+  readonly agent: string;
+  readonly status: "completed" | "running" | "queued";
+  readonly time: string;
 }
 
 // --- Static Data ---
 
 const COLLAPSED_LIMIT = 6;
 
-const staticAgents: Agent[] = [
-  {
-    name: "Claude",
-    role: "orchestrator",
-    description: "Task routing, Planning, Integration",
-    status: "Online",
-    color: "#D97706",
-    tasks: 47,
-    successRate: "99.8%",
-    quota: { used: 0, limit: 100, unit: "%", period: "weekly" },
-  },
-  {
-    name: "Codex",
-    role: "security-analyst",
-    description: "Design, Security, Analysis",
-    status: "Online",
-    color: "#FF8400",
-    tasks: 57,
-    successRate: "99.2%",
-    quota: { used: 0, limit: 100, unit: "%", period: "monthly" },
-  },
-  {
-    name: "GLM-4.7",
-    role: "code-reviewer",
-    description: "Code review, Math, Refactor",
-    status: "Online",
-    color: "#3B82F6",
-    tasks: 342,
-    successRate: "98.8%",
-    quota: { used: 0, limit: 100, unit: "%", period: "5h rolling" },
-  },
-  {
-    name: "Gemini",
-    role: "ui-reviewer",
-    description: "UI/UX Review, Image Analysis",
-    status: "Online",
-    color: "#8B5CF6",
-    tasks: 89,
-    successRate: "97.5%",
-    quota: { used: 0, limit: 60, unit: "requests" },
-  },
-  {
-    name: "Pencil",
-    role: "design-system",
-    description: "UI Design, Components",
-    status: "Online",
-    color: "#EC4899",
-    tasks: 67,
-    successRate: "100%",
-    quota: { used: 0, limit: -1, unit: "unlimited" },
-  },
-  {
-    name: "Subagent",
-    role: "explore",
-    description: "Research, Parallel Tasks",
-    status: "Idle",
-    color: "#10B981",
-    tasks: 234,
-    successRate: "96.3%",
-    quota: { used: 0, limit: -1, unit: "unlimited" },
-  },
-  {
-    name: "Manus",
-    role: "browser",
-    description: "Browser Automation, Research",
-    status: "Offline",
-    color: "#6B7280",
-    tasks: 12,
-    successRate: "91.7%",
-    quota: { used: 87, limit: 200, unit: "credits" },
-  },
-  {
-    name: "Grok",
-    role: "x-analyst",
-    description: "X/Twitter, Trends, Realtime",
-    status: "Idle",
-    color: "#1DA1F2",
-    tasks: 5,
-    successRate: "94.0%",
-    quota: { used: 12, limit: 100, unit: "requests" },
-  },
-  {
-    name: "Excalidraw",
-    role: "diagram",
-    description: "Diagrams, Architecture Viz",
-    status: "Online",
-    color: "#6366F1",
-    tasks: 23,
-    successRate: "100%",
-    quota: { used: 0, limit: -1, unit: "unlimited" },
-  },
+const staticAgents: readonly Agent[] = [
+  { name: "Claude", role: "orchestrator", status: "active", tasks: 47, successRate: "99.8%", quota: { used: 0, limit: 100, unit: "%", period: "weekly" } },
+  { name: "Codex", role: "security-analyst", status: "active", tasks: 57, successRate: "99.2%", quota: { used: 0, limit: 100, unit: "%", period: "monthly" } },
+  { name: "GLM-4.7", role: "code-reviewer", status: "active", tasks: 342, successRate: "98.8%", quota: { used: 0, limit: 100, unit: "%", period: "5h rolling" } },
+  { name: "Gemini", role: "ui-reviewer", status: "active", tasks: 89, successRate: "97.5%", quota: { used: 0, limit: 60, unit: "requests" } },
+  { name: "Pencil", role: "design-system", status: "active", tasks: 67, successRate: "100%", quota: { used: 0, limit: -1, unit: "unlimited" } },
+  { name: "Subagent", role: "explore", status: "idle", tasks: 234, successRate: "96.3%", quota: { used: 0, limit: -1, unit: "unlimited" } },
+  { name: "Manus", role: "browser", status: "offline", tasks: 12, successRate: "91.7%", quota: { used: 87, limit: 200, unit: "credits" } },
+  { name: "Grok", role: "x-analyst", status: "idle", tasks: 5, successRate: "94.0%", quota: { used: 12, limit: 100, unit: "requests" } },
+  { name: "Excalidraw", role: "diagram", status: "active", tasks: 23, successRate: "100%", quota: { used: 0, limit: -1, unit: "unlimited" } },
 ];
 
-const staticTasks: Task[] = [
-  { id: "TSK-001", name: "Code Review: auth.ts", agent: "GLM-4.7", status: "Completed", time: "2 min ago" },
-  { id: "TSK-002", name: "Security Analysis: payments.ts", agent: "Codex", status: "Completed", time: "5 min ago" },
-  { id: "TSK-003", name: "UI Review: Dashboard", agent: "Gemini", status: "In Progress", time: "8 min ago" },
-  { id: "TSK-004", name: "Design: Settings Page", agent: "Pencil", status: "Queued", time: "12 min ago" },
-  { id: "TSK-005", name: "Plan Review: API Refactor", agent: "Codex", status: "Completed", time: "15 min ago" },
-  { id: "TSK-006", name: "Refactor: utils.ts", agent: "GLM-4.7", status: "Queued", time: "18 min ago" },
+const staticTasks: readonly Task[] = [
+  { id: "TSK-001", name: "Code Review: auth.ts", agent: "GLM-4.7", status: "completed", time: "2m ago" },
+  { id: "TSK-002", name: "Security Analysis: payments.ts", agent: "Codex", status: "completed", time: "5m ago" },
+  { id: "TSK-003", name: "UI Review: Dashboard", agent: "Gemini", status: "running", time: "8m ago" },
+  { id: "TSK-004", name: "Design: Settings Page", agent: "Pencil", status: "queued", time: "12m ago" },
+  { id: "TSK-005", name: "Plan Review: API Refactor", agent: "Codex", status: "completed", time: "15m ago" },
+  { id: "TSK-006", name: "Refactor: utils.ts", agent: "GLM-4.7", status: "queued", time: "18m ago" },
 ];
 
-// --- Agent Card (inline, compact for grid) ---
+const statusConfig = {
+  active: { badge: "success" as const, dot: "bg-[var(--color-success-foreground)]" },
+  idle: { badge: "warning" as const, dot: "bg-[var(--color-warning-foreground)]" },
+  offline: { badge: "secondary" as const, dot: "bg-[var(--muted-foreground)]" },
+};
 
-function AgentMiniCard({ agent }: { agent: Agent }) {
-  const usagePercent =
-    agent.quota.limit === -1
-      ? 100
-      : agent.quota.limit > 0
-      ? Math.round((agent.quota.used / agent.quota.limit) * 100)
-      : 0;
+const taskStatusConfig = {
+  completed: { badge: "success" as const, icon: "check_circle" },
+  running: { badge: "info" as const, icon: "progress_activity" },
+  queued: { badge: "secondary" as const, icon: "schedule" },
+};
 
-  const barColor =
-    agent.quota.limit === -1
-      ? "bg-[var(--color-success-foreground)]"
-      : usagePercent > 90
-      ? "bg-[var(--color-error-foreground)]"
-      : usagePercent > 70
-      ? "bg-[var(--color-warning-foreground)]"
-      : "bg-[var(--primary)]";
-
-  return (
-    <div className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--secondary)] transition-colors">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: agent.color }}
-      >
-        <span className="text-white text-xs font-bold">{agent.name.charAt(0)}</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-primary font-semibold text-[var(--foreground)] truncate">
-            {agent.name}
-          </span>
-          <Badge
-            variant={agent.status === "Online" ? "success" : agent.status === "Idle" ? "secondary" : "secondary"}
-            className="text-[9px] ml-2"
-          >
-            {agent.status}
-          </Badge>
-        </div>
-        <p className="text-[10px] text-[var(--muted-foreground)] truncate">{agent.description}</p>
-        <div className="mt-1 flex items-center gap-2">
-          <div className="flex-1 h-1 bg-[var(--muted)] rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full ${barColor}`}
-              style={{ width: `${Math.min(agent.quota.limit === -1 ? 100 : usagePercent, 100)}%` }}
-            />
-          </div>
-          <span className="text-[9px] font-mono text-[var(--muted-foreground)]">
-            {agent.quota.limit === -1 ? "\u221e" : `${usagePercent}%`}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Tabs ---
-
+// --- Tab type ---
 type WorkTab = "agents" | "tasks";
 
 export default function WorkPage() {
@@ -214,8 +85,7 @@ export default function WorkPage() {
     return staticAgents.filter(
       (a) =>
         a.name.toLowerCase().includes(q) ||
-        a.role.toLowerCase().includes(q) ||
-        a.description.toLowerCase().includes(q)
+        a.role.toLowerCase().includes(q)
     );
   }, [searchQuery]);
 
@@ -232,42 +102,46 @@ export default function WorkPage() {
         <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <MobileNav activePage="work" />
 
-          <div className="flex-1 p-4 lg:p-10 overflow-auto">
+          <div className="flex-1 p-4 lg:p-8 overflow-auto">
             {/* Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 lg:mb-6 gap-3">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
+                <h1 className="text-lg lg:text-xl font-primary font-semibold text-[var(--foreground)]">
                   Work
                 </h1>
-                <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
+                <p className="text-xs font-secondary text-[var(--muted-foreground)] mt-0.5">
                   Agents and tasks in one view
                 </p>
               </div>
             </div>
 
-            {/* Tab Switcher */}
-            <div className="flex gap-1 mb-4 bg-[var(--secondary)] rounded-full p-1 w-fit">
+            {/* Tabs — underline style */}
+            <div className="flex gap-6 border-b border-[var(--border)] mb-6">
               <button
                 onClick={() => setTab("agents")}
-                className={`px-4 py-1.5 rounded-full text-xs font-primary font-medium transition-colors ${
+                className={`pb-2 text-[13px] font-primary font-medium transition-colors border-b-2 ${
                   tab === "agents"
-                    ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    ? "border-[var(--primary)] text-[var(--foreground)]"
+                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
-                <span className="material-symbols-sharp text-sm align-middle mr-1">smart_toy</span>
-                Agents ({staticAgents.length})
+                Agents
+                <span className="ml-1.5 text-[11px] font-secondary text-[var(--muted-foreground)]">
+                  {staticAgents.length}
+                </span>
               </button>
               <button
                 onClick={() => setTab("tasks")}
-                className={`px-4 py-1.5 rounded-full text-xs font-primary font-medium transition-colors ${
+                className={`pb-2 text-[13px] font-primary font-medium transition-colors border-b-2 ${
                   tab === "tasks"
-                    ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    ? "border-[var(--primary)] text-[var(--foreground)]"
+                    : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
-                <span className="material-symbols-sharp text-sm align-middle mr-1">task_alt</span>
-                Tasks ({staticTasks.length})
+                Tasks
+                <span className="ml-1.5 text-[11px] font-secondary text-[var(--muted-foreground)]">
+                  {staticTasks.length}
+                </span>
               </button>
             </div>
 
@@ -276,41 +150,125 @@ export default function WorkPage() {
               <div>
                 {/* Search */}
                 {staticAgents.length > COLLAPSED_LIMIT && (
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <div className="relative max-w-xs">
-                      <span className="material-symbols-sharp text-[var(--muted-foreground)] absolute left-3 top-1/2 -translate-y-1/2 text-lg">
+                      <span className="material-symbols-sharp text-[16px] text-[var(--muted-foreground)] absolute left-3 top-1/2 -translate-y-1/2">
                         search
                       </span>
                       <input
                         type="text"
-                        placeholder="Search agents..."
+                        placeholder="Filter agents..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                        className="w-full pl-9 pr-3 py-2 rounded-[var(--radius-m)] border border-[var(--border)] bg-[var(--card)] text-[13px] font-primary text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Agent Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {visibleAgents.map((agent) => (
-                    <AgentMiniCard key={agent.name} agent={agent} />
-                  ))}
-                </div>
+                {/* Agent table-like list */}
+                <Card>
+                  <div className="divide-y divide-[var(--border)]">
+                    {/* Table header */}
+                    <div className="grid grid-cols-[1fr_80px_60px_80px_100px] gap-4 px-4 py-2 text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider hidden lg:grid">
+                      <span>Agent</span>
+                      <span>Status</span>
+                      <span className="text-right">Tasks</span>
+                      <span className="text-right">Success</span>
+                      <span className="text-right">Quota</span>
+                    </div>
 
-                {/* Collapse/Expand toggle */}
+                    {visibleAgents.map((agent) => {
+                      const config = statusConfig[agent.status];
+                      const usagePercent = agent.quota.limit === -1
+                        ? 100
+                        : agent.quota.limit > 0
+                        ? Math.round((agent.quota.used / agent.quota.limit) * 100)
+                        : 0;
+
+                      return (
+                        <div
+                          key={agent.name}
+                          className="grid grid-cols-1 lg:grid-cols-[1fr_80px_60px_80px_100px] gap-2 lg:gap-4 px-4 py-3 hover:bg-[var(--secondary)] transition-colors cursor-pointer items-center"
+                        >
+                          {/* Agent info */}
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <div className="w-8 h-8 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center justify-center">
+                                <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">
+                                  {agent.name.charAt(0)}
+                                </span>
+                              </div>
+                              <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--card)] ${config.dot}`} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-primary font-medium text-[var(--foreground)] truncate">
+                                {agent.name}
+                              </p>
+                              <p className="text-[11px] font-secondary text-[var(--muted-foreground)]">
+                                {agent.role}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="hidden lg:block">
+                            <Badge variant={config.badge} dot>{agent.status}</Badge>
+                          </div>
+
+                          {/* Tasks */}
+                          <div className="hidden lg:block text-right">
+                            <span className="text-[13px] font-secondary text-[var(--foreground)]">{agent.tasks}</span>
+                          </div>
+
+                          {/* Success rate */}
+                          <div className="hidden lg:block text-right">
+                            <span className="text-[13px] font-secondary text-[var(--foreground)]">{agent.successRate}</span>
+                          </div>
+
+                          {/* Quota */}
+                          <div className="hidden lg:flex items-center gap-2 justify-end">
+                            <div className="w-16 h-1.5 bg-[var(--muted)] rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${
+                                  agent.quota.limit === -1
+                                    ? "bg-[var(--color-success-foreground)]"
+                                    : usagePercent > 90
+                                    ? "bg-[var(--color-error-foreground)]"
+                                    : usagePercent > 70
+                                    ? "bg-[var(--color-warning-foreground)]"
+                                    : "bg-[var(--primary)]"
+                                }`}
+                                style={{ width: `${Math.min(agent.quota.limit === -1 ? 100 : usagePercent, 100)}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-secondary text-[var(--muted-foreground)] w-8 text-right">
+                              {agent.quota.limit === -1 ? "\u221e" : `${usagePercent}%`}
+                            </span>
+                          </div>
+
+                          {/* Mobile: inline stats */}
+                          <div className="lg:hidden flex items-center gap-3 text-[11px] font-secondary text-[var(--muted-foreground)]">
+                            <Badge variant={config.badge} dot className="text-[10px]">{agent.status}</Badge>
+                            <span>{agent.tasks} tasks</span>
+                            <span>{agent.successRate}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+
+                {/* Expand toggle */}
                 {!searchQuery && hiddenCount > 0 && (
                   <button
                     onClick={() => setAgentsExpanded((prev) => !prev)}
                     className="mt-3 flex items-center gap-1 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors font-primary"
                   >
-                    <span className="material-symbols-sharp text-sm">
+                    <span className="material-symbols-sharp text-[16px]">
                       {agentsExpanded ? "expand_less" : "expand_more"}
                     </span>
-                    {agentsExpanded
-                      ? "Show less"
-                      : `Show ${hiddenCount} more agent${hiddenCount > 1 ? "s" : ""}`}
+                    {agentsExpanded ? "Show less" : `Show ${hiddenCount} more`}
                   </button>
                 )}
               </div>
@@ -319,54 +277,50 @@ export default function WorkPage() {
             {/* Tasks Tab */}
             {tab === "tasks" && (
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                      All Tasks
-                    </h2>
-                    <Badge variant="secondary">{staticTasks.length} tasks</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {staticTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex flex-col lg:flex-row lg:items-center justify-between py-3 border-b border-[var(--border)] last:border-0 gap-2"
-                      >
-                        <div className="flex items-center gap-3 lg:gap-4">
-                          <span className="text-[10px] lg:text-xs font-mono text-[var(--muted-foreground)]">
-                            {task.id}
-                          </span>
-                          <div>
-                            <p className="text-xs lg:text-sm font-secondary text-[var(--foreground)]">
-                              {task.name}
-                            </p>
-                            <p className="text-[10px] lg:text-xs text-[var(--muted-foreground)]">
-                              Assigned to {task.agent}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 lg:gap-4 ml-auto">
-                          <span className="text-[10px] lg:text-xs text-[var(--muted-foreground)]">
-                            {task.time}
-                          </span>
-                          <Badge
-                            variant={
-                              task.status === "Completed"
-                                ? "success"
-                                : task.status === "In Progress"
-                                ? "default"
-                                : "secondary"
-                            }
-                            className="text-[10px] lg:text-xs"
-                          >
-                            {task.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="p-0">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)]">
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Task</th>
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">Agent</th>
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Status</th>
+                        <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {staticTasks.map((task) => {
+                        const config = taskStatusConfig[task.status];
+                        return (
+                          <tr key={task.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)] transition-colors cursor-pointer">
+                            <td className="px-4 py-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className={`material-symbols-sharp text-[16px] ${
+                                  task.status === "running" ? "text-[var(--color-info-foreground)] pulse-live" :
+                                  task.status === "completed" ? "text-[var(--color-success-foreground)]" :
+                                  "text-[var(--muted-foreground)]"
+                                }`}>
+                                  {config.icon}
+                                </span>
+                                <div>
+                                  <p className="text-[13px] font-primary text-[var(--foreground)]">{task.name}</p>
+                                  <p className="text-[10px] font-secondary text-[var(--muted-foreground)]">{task.id}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-2.5 hidden sm:table-cell">
+                              <span className="text-[12px] font-secondary text-[var(--foreground)]">{task.agent}</span>
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <Badge variant={config.badge}>{task.status}</Badge>
+                            </td>
+                            <td className="px-4 py-2.5 text-right">
+                              <span className="text-[12px] font-secondary text-[var(--muted-foreground)]">{task.time}</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </CardContent>
               </Card>
             )}
