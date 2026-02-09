@@ -1,0 +1,57 @@
+import type { Task } from "@/types";
+
+export const mockTasks: readonly Task[] = [
+  {
+    id: "task-001",
+    title: "Implement Stripe webhook handler",
+    status: "in_progress",
+    priority: "critical",
+    assignee: "Codex",
+    createdAt: "2026-02-09T10:00:00Z",
+    updatedAt: "2026-02-10T00:30:00Z",
+    description: "Handle subscription events from Stripe",
+  },
+  {
+    id: "task-002",
+    title: "Review auth refactor PR",
+    status: "completed",
+    priority: "high",
+    assignee: "GLM-4.7",
+    createdAt: "2026-02-09T12:00:00Z",
+    updatedAt: "2026-02-10T00:55:08Z",
+  },
+  {
+    id: "task-003",
+    title: "Design Settings page layout",
+    status: "in_progress",
+    priority: "medium",
+    assignee: "Gemini",
+    createdAt: "2026-02-09T14:00:00Z",
+    updatedAt: "2026-02-10T01:00:00Z",
+  },
+  {
+    id: "task-004",
+    title: "Security audit: user input handlers",
+    status: "pending",
+    priority: "high",
+    createdAt: "2026-02-10T00:00:00Z",
+    description: "OWASP Top 10 compliance check",
+  },
+  {
+    id: "task-005",
+    title: "Optimize dashboard query performance",
+    status: "blocked",
+    priority: "medium",
+    createdAt: "2026-02-09T16:00:00Z",
+    blockedBy: ["task-001"],
+    description: "Requires Stripe integration to be complete first",
+  },
+  {
+    id: "task-006",
+    title: "Add freee receipt rule patterns",
+    status: "pending",
+    priority: "low",
+    createdAt: "2026-02-10T00:15:00Z",
+    description: "Expand account code patterns to 30+",
+  },
+] as const;

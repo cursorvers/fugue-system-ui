@@ -1,0 +1,53 @@
+import type { Agent } from "@/types";
+
+export const mockAgents: readonly Agent[] = [
+  {
+    id: "agent-codex",
+    name: "Codex",
+    role: "architect",
+    status: "active",
+    tasks: 24,
+    latency: "0.8s",
+    lastSeen: "2026-02-10T01:00:00Z",
+    provider: "codex",
+  },
+  {
+    id: "agent-glm",
+    name: "GLM-4.7",
+    role: "reviewer",
+    status: "active",
+    tasks: 31,
+    latency: "0.5s",
+    lastSeen: "2026-02-10T01:00:00Z",
+    provider: "glm",
+  },
+  {
+    id: "agent-gemini",
+    name: "Gemini",
+    role: "ui-reviewer",
+    status: "idle",
+    tasks: 8,
+    latency: "1.1s",
+    lastSeen: "2026-02-10T00:45:00Z",
+    provider: "gemini",
+  },
+  {
+    id: "agent-pencil",
+    name: "Pencil",
+    role: "designer",
+    status: "active",
+    tasks: 12,
+    latency: "0.3s",
+    lastSeen: "2026-02-10T01:00:00Z",
+    provider: "pencil",
+  },
+  {
+    id: "agent-grok",
+    name: "Grok",
+    role: "analyst",
+    status: "offline",
+    tasks: 0,
+    latency: "—",
+    provider: "grok",
+  },
+] as const;

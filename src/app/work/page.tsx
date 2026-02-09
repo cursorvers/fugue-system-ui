@@ -7,6 +7,9 @@ import { Card, CardHeader, CardContent } from "@/components/Card";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
+import { useServerData } from "@/hooks/useServerData";
+import type { ServerTask } from "@/types";
 
 // --- Types ---
 
@@ -71,13 +74,56 @@ const taskStatusConfig = {
   queued: { badge: "secondary" as const, icon: "schedule" },
 };
 
+// --- Agent detail data ---
+const agentDetails: Record<string, { description: string; recentTasks: readonly string[]; config: readonly string[] }> = {
+  Claude: { description: "Primary orchestrator. Routes tasks, integrates results, manages consensus votes.", recentTasks: ["Orchestrated 3-party vote for deploy", "Routed auth review to GLM", "Integrated security scan results"], config: ["Model: Opus 4.6", "Role: Orchestrator", "Auto-execute: enabled"] },
+  Codex: { description: "Architecture, security analysis, and high-precision code review.", recentTasks: ["Security scan: payments.ts (passed)", "Architecture review: API v2", "Plan review: microservices migration"], config: ["Plan: $200/mo fixed", "Agents: architect, security-analyst, code-reviewer", "Priority: Critical path"] },
+  "GLM-4.7": { description: "Fast code review, refactoring advice, and general-purpose analysis.", recentTasks: ["Code review: auth.ts (6/7)", "Refactor suggestion: utils.ts", "Summary: sprint retrospective"], config: ["Plan: $15/mo fixed", "Parallel limit: 7", "Agents: code-reviewer, refactor-advisor"] },
+  Gemini: { description: "UI/UX review with visual analysis. Screenshot-based validation.", recentTasks: ["UI review: Dashboard layout", "Contrast audit: dark mode", "Responsive check: mobile nav"], config: ["Billing: Pay-per-use", "Weekly limit: 60 requests", "Agents: ui-reviewer, image-analyst"] },
+  Pencil: { description: "Design system management via MCP. Component creation and theming.", recentTasks: ["Created Card component", "Updated dark theme variables", "Designed Settings layout"], config: ["Cost: Free (MCP)", "Tools: batch_design, set_variables", "Auto-trigger: .pen files"] },
+  Subagent: { description: "File exploration only. Haiku/Sonnet subagent (rate-limit restricted).", recentTasks: ["Explored src/components/ (3 files)", "Found navigation config", "Scanned test coverage"], config: ["Model: Haiku", "Limit: 5/week", "Type: Explore only"] },
+  Manus: { description: "Browser automation for E2E testing and web research.", recentTasks: ["Browser test: checkout flow (failed)", "Screenshot: landing page", "Form fill: registration test"], config: ["Budget: 200 credits", "Used: 87 credits", "Auto-approve: ≤50cr"] },
+  Grok: { description: "X/Twitter analysis and real-time information retrieval.", recentTasks: ["Trend analysis: AI tooling", "X sentiment: competitor launch", "Real-time: API status check"], config: ["Billing: Per-request", "Used: 12/100", "Agents: x-analyst, trend-analyzer"] },
+  Excalidraw: { description: "Diagram generation for architecture and flow visualization.", recentTasks: ["System architecture diagram", "Data flow: auth pipeline", "Component hierarchy chart"], config: ["Cost: Free", "Format: SVG/PNG", "Auto-trigger: diagram requests"] },
+};
+
+// --- Task detail data ---
+const taskDetails: Record<string, { description: string; steps: readonly string[]; output: string }> = {
+  "TSK-001": { description: "Automated code review of auth.ts focusing on type safety, error handling, and security patterns.", steps: ["Loaded auth.ts (142 lines)", "Checked type annotations: 12/12 typed", "Validated error handling: try-catch on all async", "Security: no hardcoded secrets found", "Score: 6/7 — 1 suggestion (unused import)"], output: "Review complete. Score 6/7. 1 minor suggestion." },
+  "TSK-002": { description: "Security analysis of payments.ts for OWASP Top 10 vulnerabilities.", steps: ["Scanning for injection vulnerabilities...", "Checking XSS vectors: 0 found", "Validating CSRF tokens: present", "Input validation: Zod schemas detected", "Rate limiting: configured on endpoints"], output: "Analysis complete. 0 critical, 1 warning (unvalidated input L47)." },
+  "TSK-003": { description: "Visual UI review of Dashboard page across viewport sizes.", steps: ["Capturing desktop viewport (1440px)...", "Capturing tablet viewport (768px)...", "Capturing mobile viewport (375px)...", "Analyzing contrast ratios..."], output: "In progress — analyzing contrast ratios..." },
+  "TSK-004": { description: "Design Settings page layout with Pencil MCP.", steps: ["Queued — waiting for Gemini UI review to complete"], output: "Waiting in queue." },
+  "TSK-005": { description: "Review API refactor plan from REST to tRPC.", steps: ["Loaded Plans.md (API Refactor section)", "Checked endpoint mapping: 12 endpoints", "Validated type safety improvements", "Architecture: approved with suggestions"], output: "Plan approved. 2 suggestions: batch endpoints, add caching layer." },
+  "TSK-006": { description: "Refactor utils.ts to reduce duplication and improve type safety.", steps: ["Queued — waiting for available agent slot"], output: "Waiting in queue." },
+};
+
 // --- Tab type ---
 type WorkTab = "agents" | "tasks";
+
+function serverTaskToWorkTask(task: ServerTask): Task {
+  const createdAtMs = typeof task.createdAt === "number" ? task.createdAt * 1000 : Date.parse(String(task.createdAt));
+  const minutesAgo = Math.round((Date.now() - createdAtMs) / 60000);
+  const timeStr = minutesAgo < 1 ? "now" : `${minutesAgo}m ago`;
+  return {
+    id: task.id,
+    name: task.title,
+    agent: task.executor ?? "Orchestrator",
+    status: task.status === "completed" ? "completed" : task.status === "failed" ? "completed" : task.status === "pending" ? "queued" : "running",
+    time: timeStr,
+  };
+}
 
 export default function WorkPage() {
   const [tab, setTab] = useState<WorkTab>("agents");
   const [agentsExpanded, setAgentsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
+
+  const { tasks: serverTasks, isConnected, isConnecting, error, refresh } = useServerData();
+  const tasks: readonly Task[] = serverTasks.length > 0
+    ? serverTasks.map(serverTaskToWorkTask)
+    : staticTasks;
 
   const filteredAgents = useMemo(() => {
     if (!searchQuery) return staticAgents;
@@ -101,6 +147,12 @@ export default function WorkPage() {
 
         <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <MobileNav activePage="work" />
+
+          <ConnectionStatus
+            state={isConnected ? "connected" : isConnecting ? "connecting" : error ? "error" : "disconnected"}
+            error={error}
+            onReconnect={refresh}
+          />
 
           <div className="flex-1 p-4 lg:p-8 overflow-auto">
             {/* Header */}
@@ -140,7 +192,7 @@ export default function WorkPage() {
               >
                 Tasks
                 <span className="ml-1.5 text-[11px] font-secondary text-[var(--muted-foreground)]">
-                  {staticTasks.length}
+                  {tasks.length}
                 </span>
               </button>
             </div>
@@ -189,7 +241,10 @@ export default function WorkPage() {
                       return (
                         <div
                           key={agent.name}
-                          className="grid grid-cols-1 lg:grid-cols-[1fr_80px_60px_80px_100px] gap-2 lg:gap-4 px-4 py-3 hover:bg-[var(--secondary)] transition-colors cursor-pointer items-center"
+                          onClick={() => { setSelectedAgent(agent.name === selectedAgent ? null : agent.name); setSelectedTask(null); }}
+                          className={`grid grid-cols-1 lg:grid-cols-[1fr_80px_60px_80px_100px] gap-2 lg:gap-4 px-4 py-3 hover:bg-[var(--secondary)] transition-colors cursor-pointer items-center ${
+                            agent.name === selectedAgent ? "bg-[var(--secondary)]" : ""
+                          }`}
                         >
                           {/* Agent info */}
                           <div className="flex items-center gap-3">
@@ -288,10 +343,16 @@ export default function WorkPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {staticTasks.map((task) => {
+                      {tasks.map((task) => {
                         const config = taskStatusConfig[task.status];
                         return (
-                          <tr key={task.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)] transition-colors cursor-pointer">
+                          <tr
+                            key={task.id}
+                            onClick={() => { setSelectedTask(task.id === selectedTask ? null : task.id); setSelectedAgent(null); }}
+                            className={`border-b border-[var(--border)] last:border-0 hover:bg-[var(--secondary)] transition-colors cursor-pointer ${
+                              task.id === selectedTask ? "bg-[var(--secondary)]" : ""
+                            }`}
+                          >
                             <td className="px-4 py-2.5">
                               <div className="flex items-center gap-2">
                                 <span className={`material-symbols-sharp text-[16px] ${
@@ -326,6 +387,162 @@ export default function WorkPage() {
             )}
           </div>
         </main>
+
+        {/* Agent Detail Panel */}
+        {selectedAgent && (() => {
+          const agent = staticAgents.find((a) => a.name === selectedAgent);
+          const detail = agentDetails[selectedAgent];
+          if (!agent || !detail) return null;
+          const config = statusConfig[agent.status];
+          return (
+            <div
+              className="fixed inset-0 z-40 lg:relative lg:inset-auto"
+              onClick={(e) => { if (e.target === e.currentTarget) setSelectedAgent(null); }}
+            >
+              <div className="absolute inset-0 bg-black/30 lg:hidden" />
+              <aside className="absolute right-0 top-0 h-full w-[380px] bg-[var(--card)] border-l border-[var(--border)] shadow-[var(--shadow-l)] flex flex-col z-50 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center justify-center">
+                      <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">{agent.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-primary font-semibold text-[var(--foreground)]">{agent.name}</p>
+                      <p className="text-[11px] font-secondary text-[var(--muted-foreground)]">{agent.role}</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedAgent(null)}>
+                    <span className="material-symbols-sharp text-[18px]">close</span>
+                  </Button>
+                </div>
+
+                <div className="flex-1 overflow-auto">
+                  {/* Status & Stats */}
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Status</p>
+                        <div className="mt-1"><Badge variant={config.badge} dot>{agent.status}</Badge></div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Tasks</p>
+                        <p className="text-[16px] font-secondary font-semibold text-[var(--foreground)] mt-1">{agent.tasks}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Success</p>
+                        <p className="text-[16px] font-secondary font-semibold text-[var(--color-success-foreground)] mt-1">{agent.successRate}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">About</p>
+                    <p className="text-[12px] font-primary text-[var(--foreground)] leading-relaxed">{detail.description}</p>
+                  </div>
+
+                  {/* Recent Tasks */}
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Recent Activity</p>
+                    <div className="space-y-1.5">
+                      {detail.recentTasks.map((t, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="material-symbols-sharp text-[14px] text-[var(--color-success-foreground)] mt-0.5 flex-shrink-0">check_circle</span>
+                          <span className="text-[11px] font-secondary text-[var(--foreground)]">{t}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Config */}
+                  <div className="px-4 py-3">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Configuration</p>
+                    <div className="space-y-1">
+                      {detail.config.map((c, i) => (
+                        <p key={i} className="text-[11px] font-secondary text-[var(--muted-foreground)]">{c}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          );
+        })()}
+
+        {/* Task Detail Panel */}
+        {selectedTask && (() => {
+          const task = tasks.find((t) => t.id === selectedTask);
+          const detail = taskDetails[selectedTask];
+          if (!task || !detail) return null;
+          const config = taskStatusConfig[task.status];
+          return (
+            <div
+              className="fixed inset-0 z-40 lg:relative lg:inset-auto"
+              onClick={(e) => { if (e.target === e.currentTarget) setSelectedTask(null); }}
+            >
+              <div className="absolute inset-0 bg-black/30 lg:hidden" />
+              <aside className="absolute right-0 top-0 h-full w-[380px] bg-[var(--card)] border-l border-[var(--border)] shadow-[var(--shadow-l)] flex flex-col z-50 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`material-symbols-sharp text-[18px] ${
+                      task.status === "running" ? "text-[var(--color-info-foreground)] pulse-live" :
+                      task.status === "completed" ? "text-[var(--color-success-foreground)]" :
+                      "text-[var(--muted-foreground)]"
+                    }`}>{config.icon}</span>
+                    <span className="text-[13px] font-primary font-semibold text-[var(--foreground)] truncate">{task.id}</span>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedTask(null)}>
+                    <span className="material-symbols-sharp text-[18px]">close</span>
+                  </Button>
+                </div>
+
+                <div className="flex-1 overflow-auto">
+                  <div className="px-4 py-3 border-b border-[var(--border)] space-y-2">
+                    <p className="text-[13px] font-primary font-medium text-[var(--foreground)]">{task.name}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Agent</p>
+                        <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{task.agent}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Status</p>
+                        <div className="mt-0.5"><Badge variant={config.badge}>{task.status}</Badge></div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Time</p>
+                        <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{task.time}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Description</p>
+                    <p className="text-[12px] font-primary text-[var(--foreground)] leading-relaxed">{detail.description}</p>
+                  </div>
+
+                  <div className="px-4 py-3 border-b border-[var(--border)]">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Execution Steps</p>
+                    <div className="space-y-1.5">
+                      {detail.steps.map((step, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="text-[10px] font-secondary text-[var(--muted-foreground)] w-4 flex-shrink-0 mt-0.5 text-right">{i + 1}</span>
+                          <span className="text-[11px] font-secondary text-[var(--foreground)]">{step}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="px-4 py-3">
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Output</p>
+                    <div className="bg-[var(--muted)] rounded-[var(--radius-m)] p-3">
+                      <p className="text-[11px] font-secondary text-[var(--foreground)]">{detail.output}</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          );
+        })()}
       </div>
     </ProtectedRoute>
   );
