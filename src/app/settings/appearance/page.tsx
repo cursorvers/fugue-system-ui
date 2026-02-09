@@ -96,11 +96,11 @@ export default function AppearanceSettingsPage() {
     <ProtectedRoute>
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         <div className="hidden lg:block">
-          <Sidebar activePage="dashboard" />
+          <Sidebar activePage="settings" />
         </div>
 
         <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <MobileNav activePage="dashboard" />
+          <MobileNav activePage="settings" />
           <AppearanceContent />
         </main>
       </div>

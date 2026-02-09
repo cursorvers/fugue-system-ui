@@ -6,54 +6,19 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Logo } from "@/components/Logo";
-
-interface NavItem {
-  icon: string;
-  label: string;
-  href: string;
-}
-
-interface SidebarSection {
-  title: string;
-  items: NavItem[];
-}
-
-const navigationSections: SidebarSection[] = [
-  {
-    title: "Orchestrator",
-    items: [
-      { icon: "dashboard", label: "Dashboard", href: "/" },
-      { icon: "smart_toy", label: "Agents", href: "/agents" },
-      { icon: "task_alt", label: "Tasks", href: "/tasks" },
-      { icon: "notifications", label: "Notifications", href: "/notifications" },
-      { icon: "chat", label: "Chat", href: "/chat" },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      { icon: "palette", label: "Appearance", href: "/settings/appearance" },
-      { icon: "notifications_active", label: "Notifications", href: "/settings/notifications" },
-      { icon: "person", label: "Account", href: "/settings/account" },
-      { icon: "help", label: "Help", href: "/settings/help" },
-    ],
-  },
-];
+import { navigationSections, isActivePage, type ActivePage } from "@/config/navigation";
 
 interface SidebarProps {
-  activePage?: "dashboard" | "agents" | "tasks" | "logs" | "chat";
+  activePage?: ActivePage;
   className?: string;
 }
 
-export function Sidebar({ activePage = "dashboard", className }: SidebarProps) {
+export function Sidebar({ activePage = "overview", className }: SidebarProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
-  const isActive = (href: string) => {
-    if (href === "/") return activePage === "dashboard";
-    return href === `/${activePage}`;
-  };
+  const isActive = (href: string) => isActivePage(href, activePage);
 
   const handleLogout = () => {
     logout();

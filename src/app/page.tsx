@@ -36,12 +36,12 @@ export default function Dashboard() {
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         {/* Desktop Sidebar - hidden on mobile */}
         <div className="hidden lg:block">
-          <Sidebar activePage="dashboard" />
+          <Sidebar activePage="overview" />
         </div>
 
         <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Mobile Header with Hamburger Menu */}
-          <MobileNav activePage="dashboard" />
+          <MobileNav activePage="overview" />
 
           <div className="flex-1 flex flex-col gap-4 lg:gap-8 p-4 lg:p-10 overflow-auto">
             {/* Header */}

@@ -7,55 +7,20 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Logo } from "@/components/Logo";
-
-interface NavItem {
-  icon: string;
-  label: string;
-  href: string;
-}
-
-interface SidebarSection {
-  title: string;
-  items: NavItem[];
-}
-
-const navigationSections: SidebarSection[] = [
-  {
-    title: "Orchestrator",
-    items: [
-      { icon: "dashboard", label: "Dashboard", href: "/" },
-      { icon: "smart_toy", label: "Agents", href: "/agents" },
-      { icon: "task_alt", label: "Tasks", href: "/tasks" },
-      { icon: "notifications", label: "Notifications", href: "/notifications" },
-      { icon: "chat", label: "Chat", href: "/chat" },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      { icon: "palette", label: "Appearance", href: "/settings/appearance" },
-      { icon: "notifications_active", label: "Notifications", href: "/settings/notifications" },
-      { icon: "person", label: "Account", href: "/settings/account" },
-      { icon: "help", label: "Help", href: "/settings/help" },
-    ],
-  },
-];
+import { navigationSections, isActivePage, type ActivePage } from "@/config/navigation";
 
 interface MobileNavProps {
-  activePage?: "dashboard" | "agents" | "tasks" | "logs" | "chat" | "notifications";
+  activePage?: ActivePage;
   className?: string;
 }
 
-export function MobileNav({ activePage = "dashboard", className }: MobileNavProps) {
+export function MobileNav({ activePage = "overview", className }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
-  const isActive = (href: string) => {
-    if (href === "/") return activePage === "dashboard";
-    return href === `/${activePage}`;
-  };
+  const isActive = (href: string) => isActivePage(href, activePage);
 
   const handleLogout = () => {
     logout();

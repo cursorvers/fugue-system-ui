@@ -31,11 +31,11 @@ export default function NotificationSettingsPage() {
     <ProtectedRoute>
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         <div className="hidden lg:block">
-          <Sidebar activePage="dashboard" />
+          <Sidebar activePage="settings" />
         </div>
 
         <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <MobileNav activePage="dashboard" />
+          <MobileNav activePage="settings" />
 
           <div className="flex-1 p-4 lg:p-10 overflow-auto">
             <div className="mb-4 lg:mb-6">
