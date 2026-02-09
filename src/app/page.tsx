@@ -239,7 +239,7 @@ export default function Dashboard() {
                     <div
                       key={item.id}
                       className={`flex gap-3 px-4 py-3 border-b border-[var(--border)] hover:bg-[var(--secondary)] transition-colors cursor-pointer ${
-                        !item.read ? "bg-[var(--color-info)]/30" : ""
+                        !item.read ? "bg-[var(--color-info)]" : ""
                       }`}
                     >
                       <span className={`material-symbols-sharp text-[18px] mt-0.5 flex-shrink-0 ${config.color}`}>

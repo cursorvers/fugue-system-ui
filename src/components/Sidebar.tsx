@@ -17,14 +17,17 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activePage = "overview", className }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem(SIDEBAR_KEY) === "true";
-  });
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(SIDEBAR_KEY);
+    if (saved === "true") setCollapsed(true);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_KEY, String(collapsed));
   }, [collapsed]);
+
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
