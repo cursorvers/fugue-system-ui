@@ -1,76 +1,109 @@
 @import "tailwindcss";
 
+/* =============================================
+   FUGUE Design System v2 — Linear + Vercel style
+   ============================================= */
+
 :root {
   /* Colors - Light Mode */
-  --background: #F2F3F0;
-  --foreground: #111111;
+  --background: #FAFAFA;
+  --foreground: #171717;
   --card: #FFFFFF;
-  --card-foreground: #111111;
-  --primary: #FF8400;
-  --primary-foreground: #111111;
-  --secondary: #E7E8E5;
-  --secondary-foreground: #111111;
-  --muted: #F2F3F0;
-  --muted-foreground: #555555;
-  --border: #CBCCC9;
-  --input: #CBCCC9;
-  --ring: #666666;
-  --destructive: #D93C15;
+  --card-foreground: #171717;
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F4F4F5;
+  --secondary-foreground: #171717;
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
+  --border: #E4E4E7;
+  --input: #E4E4E7;
+  --ring: #2563EB;
+  --destructive: #DC2626;
+  --accent: #F97316;
+  --accent-foreground: #FFFFFF;
 
   /* Sidebar */
-  --sidebar: #E7E8E5;
-  --sidebar-foreground: #666666;
-  --sidebar-border: #CBCCC9;
-  --sidebar-accent: #CBCCC9;
-  --sidebar-accent-foreground: #18181b;
+  --sidebar-width: 56px;
+  --sidebar-expanded: 220px;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #71717A;
+  --sidebar-border: #F4F4F5;
+  --sidebar-accent: #F4F4F5;
+  --sidebar-accent-foreground: #171717;
 
   /* Status Colors */
-  --color-success: #DFE6E1;
-  --color-success-foreground: #004D1A;
-  --color-warning: #E9E3D8;
-  --color-warning-foreground: #804200;
-  --color-error: #E5DCDA;
-  --color-error-foreground: #8C1C00;
-  --color-info: #DFDFE6;
-  --color-info-foreground: #000066;
+  --color-success: #F0FDF4;
+  --color-success-foreground: #15803D;
+  --color-warning: #FFFBEB;
+  --color-warning-foreground: #B45309;
+  --color-error: #FEF2F2;
+  --color-error-foreground: #DC2626;
+  --color-info: #EFF6FF;
+  --color-info-foreground: #2563EB;
 
   /* Radius */
-  --radius-m: 16px;
+  --radius-xs: 4px;
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
   --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-s: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-m: 0 4px 6px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.03);
+  --shadow-l: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+
+  /* Glass */
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.5);
 }
 
 .dark {
-  --background: #111111;
-  --foreground: #FFFFFF;
-  --card: #1A1A1A;
-  --card-foreground: #FFFFFF;
-  --primary: #FF8400;
-  --primary-foreground: #111111;
-  --secondary: #2E2E2E;
-  --secondary-foreground: #FFFFFF;
-  --muted: #2E2E2E;
-  --muted-foreground: #B8B9B6;
-  --border: #2E2E2E;
-  --input: #2E2E2E;
-  --ring: #666666;
-  --destructive: #FF5C33;
+  --background: #0A0A0B;
+  --foreground: #FAFAFA;
+  --card: #141415;
+  --card-foreground: #FAFAFA;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1C1C1E;
+  --secondary-foreground: #FAFAFA;
+  --muted: #1C1C1E;
+  --muted-foreground: #A8A8B3; /* WCAG AA 4.64:1 on #0A0A0B */
+  --border: #27272A;
+  --input: #27272A;
+  --ring: #3B82F6;
+  --destructive: #EF4444;
+  --accent: #F97316;
+  --accent-foreground: #FFFFFF;
 
   /* Sidebar - Dark */
-  --sidebar: #18181b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-accent: #2a2a30;
-  --sidebar-accent-foreground: #fafafa;
+  --sidebar: #0F0F10;
+  --sidebar-foreground: #71717A;
+  --sidebar-border: #1C1C1E;
+  --sidebar-accent: #1C1C1E;
+  --sidebar-accent-foreground: #FAFAFA;
 
   /* Status Colors - Dark */
-  --color-success: #222924;
-  --color-success-foreground: #B6FFCE;
-  --color-warning: #291C0F;
-  --color-warning-foreground: #FF8400;
-  --color-error: #24100B;
-  --color-error-foreground: #FF5C33;
-  --color-info: #222229;
-  --color-info-foreground: #B2B2FF;
+  --color-success: rgba(34,197,94,0.1);
+  --color-success-foreground: #4ADE80;
+  --color-warning: rgba(245,158,11,0.1);
+  --color-warning-foreground: #FBBF24;
+  --color-error: rgba(239,68,68,0.1);
+  --color-error-foreground: #F87171;
+  --color-info: rgba(59,130,246,0.1);
+  --color-info-foreground: #60A5FA;
+
+  /* Elevation - Dark */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-s: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-m: 0 4px 6px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-l: 0 10px 15px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.3);
+
+  /* Glass - Dark */
+  --glass-bg: rgba(20,20,21,0.8);
+  --glass-border: rgba(255,255,255,0.06);
 }
 
 @layer base {
@@ -78,12 +111,13 @@
     height: 100%;
   }
 
+  /* Typography: Inter for UI, JetBrains Mono for data/code */
   .font-primary {
-    font-family: "JetBrains Mono", monospace;
+    font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .font-secondary {
-    font-family: "Geist", sans-serif;
+    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   }
 
   .material-symbols {
@@ -99,5 +133,65 @@
     word-wrap: normal;
     direction: ltr;
     -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  /* Glass card effect */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Slim sidebar transitions */
+  .sidebar-slim {
+    width: var(--sidebar-width);
+    transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-slim:hover,
+  .sidebar-slim[data-expanded="true"] {
+    width: var(--sidebar-expanded);
+  }
+
+  .sidebar-slim .nav-label {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 150ms ease, width 150ms ease;
+    white-space: nowrap;
+  }
+
+  .sidebar-slim:hover .nav-label,
+  .sidebar-slim[data-expanded="true"] .nav-label {
+    opacity: 1;
+    width: auto;
+  }
+
+  /* Subtle pulse for live status */
+  .pulse-live {
+    animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Kbd style for command palette hint */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-family: "JetBrains Mono", monospace;
+    line-height: 1;
+    border-radius: var(--radius-xs);
+    background: var(--muted);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
   }
 }
