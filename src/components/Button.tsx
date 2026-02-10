@@ -30,10 +30,10 @@ export function Button({
   };
 
   const sizes = {
-    sm: "h-8 px-3 text-xs",
-    default: "h-9 px-4",
-    lg: "h-10 px-5",
-    icon: "h-8 w-8 p-0",
+    sm: "min-h-[44px] h-8 px-3 text-xs",
+    default: "min-h-[44px] h-9 px-4",
+    lg: "min-h-[44px] h-10 px-5",
+    icon: "min-h-[44px] min-w-[44px] h-8 w-8 p-0",
   };
 
   return (

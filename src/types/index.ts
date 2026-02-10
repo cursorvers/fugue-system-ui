@@ -1,3 +1,5 @@
+export type { Project, Conversation } from "./project";
+export type { Message } from "./chat";
 export type { Agent, AgentStatus, AgentRole } from "./agent";
 export type { Run, RunStatus } from "./run";
 export type { Task, TaskStatus, TaskPriority } from "./task";

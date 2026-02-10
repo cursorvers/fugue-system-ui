@@ -222,7 +222,7 @@ export default function GitPage() {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`pb-2 text-[13px] font-primary font-medium transition-colors border-b-2 capitalize ${
+                  className={`pb-2 min-h-[44px] text-[13px] font-primary font-medium transition-colors border-b-2 capitalize ${
                     tab === t
                       ? "border-[var(--primary)] text-[var(--foreground)]"
                       : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -291,7 +291,7 @@ export default function GitPage() {
                                 {branch.name}
                               </code>
                               {branch.isCurrent && (
-                                <Badge variant="success" className="text-[9px]">current</Badge>
+                                <Badge variant="success" className="text-[10px]">current</Badge>
                               )}
                             </div>
                             <p className="text-[11px] font-secondary text-[var(--muted-foreground)]">

@@ -236,7 +236,7 @@ export default function RunsPage() {
                   {recentLogs.map((log, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-3 px-4 py-2 hover:bg-[var(--secondary)] transition-colors text-[12px] font-secondary"
+                      className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--secondary)] transition-colors text-[12px] font-secondary"
                     >
                       <span className="text-[var(--muted-foreground)] w-16 flex-shrink-0 font-secondary">
                         {log.timestamp}
@@ -333,7 +333,7 @@ export default function RunsPage() {
                     <span className="text-[var(--muted-foreground)] w-14 flex-shrink-0">{log.timestamp}</span>
                     <Badge
                       variant={logLevelConfig[log.level]}
-                      className="text-[9px] px-1 py-0 flex-shrink-0"
+                      className="text-[10px] px-1 py-0 flex-shrink-0"
                     >
                       {log.level}
                     </Badge>

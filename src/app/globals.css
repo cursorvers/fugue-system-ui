@@ -113,11 +113,11 @@
 
   /* Typography: Inter for UI, JetBrains Mono for data/code */
   .font-primary {
-    font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-geist), "Geist", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .font-secondary {
-    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+    font-family: var(--font-jetbrains-mono), "JetBrains Mono", "SF Mono", "Fira Code", monospace;
   }
 
   .material-symbols {

@@ -39,7 +39,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
       >
         <button
           onClick={() => setIsOpen(true)}
-          className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
+          className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
           aria-label="Open menu"
         >
           <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">menu</span>
@@ -50,7 +50,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
         </Link>
 
         <button
-          className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
+          className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
           aria-label="Search"
         >
           <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">search</span>

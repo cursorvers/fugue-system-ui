@@ -11,7 +11,7 @@ export default function AccountSettingsPage() {
   const { user } = useAuth();
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredRole="admin">
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         <div className="hidden lg:block">
           <Sidebar activePage="settings" />

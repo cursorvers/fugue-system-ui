@@ -105,7 +105,7 @@ export default function Dashboard() {
                 >
                   <span className="material-symbols-sharp text-[20px]">inbox</span>
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--destructive)] text-white text-[9px] font-secondary font-bold flex items-center justify-center" aria-hidden="true">
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--destructive)] text-white text-[10px] font-secondary font-bold flex items-center justify-center" aria-hidden="true">
                       {unreadCount}
                     </span>
                   )}
@@ -163,7 +163,7 @@ export default function Dashboard() {
                       key={agent.id}
                       type="button"
                       onClick={() => setSelectedAgent(agent.id === selectedAgent ? null : agent.id)}
-                      className={`flex items-center gap-3 px-2 py-2 rounded-[var(--radius-m)] hover:bg-[var(--secondary)] transition-colors cursor-pointer text-left w-full ${
+                      className={`flex items-center gap-3 px-2 py-2 min-h-[44px] rounded-[var(--radius-m)] hover:bg-[var(--secondary)] transition-colors cursor-pointer text-left w-full ${
                         agent.id === selectedAgent ? "bg-[var(--secondary)]" : ""
                       }`}
                       aria-expanded={agent.id === selectedAgent}
@@ -193,7 +193,7 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-[11px] font-secondary text-[var(--foreground)]">{agent.tasks}</p>
-                        <p className="text-[10px] font-secondary text-[var(--muted-foreground)]">{agent.latency}</p>
+                        <p className="text-[11px] font-secondary text-[var(--muted-foreground)]">{agent.latency}</p>
                       </div>
                     </button>
                   ))}

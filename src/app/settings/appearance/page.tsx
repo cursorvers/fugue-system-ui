@@ -93,7 +93,7 @@ function AppearanceContent() {
 
 export default function AppearanceSettingsPage() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredRole="admin">
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         <div className="hidden lg:block">
           <Sidebar activePage="settings" />

@@ -63,6 +63,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
   const [error, setError] = useState<string | null>(null);
 
   const connect = useCallback(() => {
+    if (!url) return;
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
     if (wsRef.current?.readyState === WebSocket.CONNECTING) return;
 
@@ -88,8 +89,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
           onMessageRef.current?.(message);
-        } catch (e) {
-          console.error("[useWebSocket] Failed to parse message:", e);
+        } catch {
+          // silently discard unparseable messages
         }
       };
 
@@ -106,9 +107,6 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
         if (shouldReconnect) {
           reconnectAttemptsRef.current++;
-          console.log(
-            `[useWebSocket] Reconnecting (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`
-          );
           reconnectTimeoutRef.current = setTimeout(connect, reconnectInterval);
         } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
           setError("Connection failed. Server may require authentication.");
@@ -144,8 +142,6 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
   const send = useCallback((message: WebSocketMessage) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
-    } else {
-      console.warn("[useWebSocket] Cannot send, WebSocket not connected");
     }
   }, []);
 

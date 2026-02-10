@@ -171,7 +171,7 @@ export default function WorkPage() {
             <div className="flex gap-6 border-b border-[var(--border)] mb-6">
               <button
                 onClick={() => setTab("agents")}
-                className={`pb-2 text-[13px] font-primary font-medium transition-colors border-b-2 ${
+                className={`pb-2 min-h-[44px] text-[13px] font-primary font-medium transition-colors border-b-2 ${
                   tab === "agents"
                     ? "border-[var(--primary)] text-[var(--foreground)]"
                     : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -184,7 +184,7 @@ export default function WorkPage() {
               </button>
               <button
                 onClick={() => setTab("tasks")}
-                className={`pb-2 text-[13px] font-primary font-medium transition-colors border-b-2 ${
+                className={`pb-2 min-h-[44px] text-[13px] font-primary font-medium transition-colors border-b-2 ${
                   tab === "tasks"
                     ? "border-[var(--primary)] text-[var(--foreground)]"
                     : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"

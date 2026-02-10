@@ -9,9 +9,7 @@ import type {
   ServerProviderHealth,
 } from "@/types";
 
-const WS_URL =
-  process.env.NEXT_PUBLIC_WS_URL ||
-  "wss://cockpit-public-ws.masa-stage1.workers.dev/ws";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "";
 
 interface ServerDataState {
   readonly tasks: readonly ServerTask[];
@@ -79,6 +77,21 @@ export function useServerData() {
           setState((prev) => ({
             ...prev,
             providerHealth: payload.provider_health ?? [],
+          }));
+        }
+        break;
+      }
+
+      case "task-result": {
+        const payload = msg.payload as ServerTask;
+        if (payload?.id) {
+          setState((prev) => ({
+            ...prev,
+            tasks: [
+              ...prev.tasks.filter((t) => t.id !== payload.id),
+              payload,
+            ],
+            isLive: true,
           }));
         }
         break;
