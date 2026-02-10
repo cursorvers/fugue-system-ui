@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/chat";
 
@@ -45,6 +45,153 @@ function StatusIndicator({ status }: { status?: Message["status"] }) {
   }
 }
 
+// --- Inline Markdown: **bold**, *italic*, `code`, [text](url) ---
+
+function renderInline(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  const regex =
+    /(\*\*(.+?)\*\*|\*([^*\s](?:[^*]*[^*\s])?)\*|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^)]+)\))/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[2]) {
+      nodes.push(
+        <strong key={key++} className="font-semibold">
+          {match[2]}
+        </strong>
+      );
+    } else if (match[3]) {
+      nodes.push(<em key={key++}>{match[3]}</em>);
+    } else if (match[4]) {
+      nodes.push(
+        <code
+          key={key++}
+          className="px-1 py-0.5 rounded bg-[var(--secondary)] text-[13px] font-secondary"
+        >
+          {match[4]}
+        </code>
+      );
+    } else if (match[5] && match[6]) {
+      nodes.push(
+        <a
+          key={key++}
+          href={match[6]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[var(--primary)] underline underline-offset-2 hover:opacity-80"
+        >
+          {match[5]}
+        </a>
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes.length > 0 ? nodes : [text];
+}
+
+// --- Block-level Markdown: headings, lists, paragraphs ---
+
+function MarkdownBlock({ content }: { readonly content: string }) {
+  const elements = useMemo(() => {
+    const result: ReactNode[] = [];
+    const lines = content.split("\n");
+    let listItems: ReactNode[] = [];
+    let listType: "ul" | "ol" | null = null;
+    let key = 0;
+
+    const flushList = () => {
+      if (listType && listItems.length > 0) {
+        const cls =
+          listType === "ul"
+            ? "list-disc list-inside space-y-0.5 ml-1"
+            : "list-decimal list-inside space-y-0.5 ml-1";
+        result.push(
+          listType === "ul" ? (
+            <ul key={key++} className={cls}>
+              {listItems}
+            </ul>
+          ) : (
+            <ol key={key++} className={cls}>
+              {listItems}
+            </ol>
+          )
+        );
+        listItems = [];
+        listType = null;
+      }
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+
+      if (!trimmed) {
+        flushList();
+        continue;
+      }
+
+      // Heading
+      const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)/);
+      if (headingMatch) {
+        flushList();
+        result.push(
+          <p key={key++} className="font-semibold">
+            {renderInline(headingMatch[2])}
+          </p>
+        );
+        continue;
+      }
+
+      // Unordered list
+      const ulMatch = trimmed.match(/^[-*]\s+(.+)/);
+      if (ulMatch) {
+        if (listType !== "ul") {
+          flushList();
+          listType = "ul";
+        }
+        listItems.push(<li key={key++}>{renderInline(ulMatch[1])}</li>);
+        continue;
+      }
+
+      // Ordered list
+      const olMatch = trimmed.match(/^\d+\.\s+(.+)/);
+      if (olMatch) {
+        if (listType !== "ol") {
+          flushList();
+          listType = "ol";
+        }
+        listItems.push(<li key={key++}>{renderInline(olMatch[1])}</li>);
+        continue;
+      }
+
+      // Regular text line
+      flushList();
+      result.push(<p key={key++}>{renderInline(trimmed)}</p>);
+    }
+
+    flushList();
+    return result;
+  }, [content]);
+
+  return (
+    <div className="space-y-1 text-[14px] font-primary leading-relaxed">
+      {elements}
+    </div>
+  );
+}
+
+// --- Code Block Detection ---
+
 function detectCodeBlocks(
   content: string
 ): readonly { readonly type: "text" | "code"; readonly content: string }[] {
@@ -71,10 +218,35 @@ function detectCodeBlocks(
   return parts.length > 0 ? parts : [{ type: "text", content }];
 }
 
+// --- Typing Indicator ---
+
+export function TypingIndicator() {
+  return (
+    <div className="flex gap-2 py-1.5 justify-start">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-[var(--radius-l)] px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-2 h-2 rounded-full bg-[var(--muted-foreground)] animate-bounce"
+              style={{
+                animationDelay: `${i * 150}ms`,
+                animationDuration: "1s",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Message Bubble ---
+
 export function MessageBubble({ message }: MessageBubbleProps) {
   const { type, content, timestamp, status, routing } = message;
 
-  // System messages - centered, minimal
+  // System messages — centered, minimal
   if (type === "system") {
     return (
       <div className="flex justify-center py-1">
@@ -131,16 +303,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               >
                 <code>{part.content}</code>
               </pre>
-            ) : (
+            ) : isUser ? (
               <p
                 key={i}
-                className={cn(
-                  "text-[14px] font-primary leading-relaxed whitespace-pre-wrap break-words",
-                  isUser ? "" : "text-[var(--foreground)]"
-                )}
+                className="text-[14px] font-primary leading-relaxed whitespace-pre-wrap break-words"
               >
                 {part.content}
               </p>
+            ) : (
+              <MarkdownBlock key={i} content={part.content} />
             )
           )}
         </div>

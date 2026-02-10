@@ -11,12 +11,12 @@ export function ConversationTabs() {
     activeConversation,
     setActiveConversation,
     deleteConversation,
-    createConversation,
+    startNewConversation,
   } = useConversation();
 
   const handleNewChat = useCallback(() => {
-    createConversation("New conversation");
-  }, [createConversation]);
+    startNewConversation();
+  }, [startNewConversation]);
 
   return (
     <div className="flex items-center gap-1 px-4 lg:px-8 pb-2 overflow-hidden">

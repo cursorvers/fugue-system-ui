@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConversationTabs } from "@/components/chat/ConversationTabs";
-import { MessageBubble } from "@/components/chat/MessageBubble";
+import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { WelcomeScreen } from "@/components/chat/WelcomeScreen";
 import { useConversation } from "@/contexts/ConversationContext";
@@ -27,10 +27,11 @@ function ChatContent() {
   const {
     activeConversation,
     createConversation,
+    startNewConversation,
   } = useConversation();
 
   const conversationId = activeConversation?.id ?? "";
-  const { messages, addMessage, updateMessage, clearHistory } =
+  const { messages, addMessage, updateMessage } =
     useChatHistory(conversationId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -176,19 +177,29 @@ function ChatContent() {
         return;
       }
 
-      // Auto-create conversation on first message if none exists
-      if (!activeConversation) {
-        createConversation(text);
-      }
-
-      const msgId = `msg-${Date.now()}`;
-      addMessage({
-        id: msgId,
+      const msg: Message = {
+        id: `msg-${Date.now()}`,
         type: "user",
         content: text,
         timestamp: new Date(),
         status: "pending",
-      });
+      };
+
+      if (!activeConversation) {
+        // Create conversation + pre-seed localStorage so the message
+        // survives the React re-render with new conversationId
+        const newConv = createConversation(text);
+        try {
+          localStorage.setItem(
+            `fugue-chat-${newConv.id}`,
+            JSON.stringify([msg])
+          );
+        } catch {
+          // ignore storage errors
+        }
+      } else {
+        addMessage(msg);
+      }
 
       sendChat(text);
     },
@@ -196,6 +207,17 @@ function ChatContent() {
   );
 
   const hasUserMessages = messages.some((m: Message) => m.type !== "system");
+
+  // Show typing indicator when the last user message is pending/delegating
+  const isWaitingForResponse = useMemo(() => {
+    const lastUserMsg = [...messages]
+      .reverse()
+      .find((m) => m.type === "user");
+    if (!lastUserMsg) return false;
+    return (
+      lastUserMsg.status === "pending" || lastUserMsg.status === "delegating"
+    );
+  }, [messages]);
 
   return (
     <div className="flex h-screen bg-[var(--background)] overflow-hidden">
@@ -233,15 +255,13 @@ function ChatContent() {
               </div>
             </div>
           </div>
-          {hasUserMessages && (
-            <button
-              onClick={clearHistory}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
-            >
-              <span className="material-symbols-sharp text-[14px]">add</span>
-              New Chat
-            </button>
-          )}
+          <button
+            onClick={startNewConversation}
+            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
+          >
+            <span className="material-symbols-sharp text-[14px]">add</span>
+            New Chat
+          </button>
         </div>
 
         {/* Conversation tabs */}
@@ -261,6 +281,7 @@ function ChatContent() {
                 {messages.map((message: Message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
+                {isWaitingForResponse && <TypingIndicator />}
                 <div ref={messagesEndRef} />
               </div>
             )}

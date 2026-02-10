@@ -17,6 +17,7 @@ interface ConversationContextType {
   readonly createConversation: (firstMessage: string) => Conversation;
   readonly setActiveConversation: (id: string) => void;
   readonly deleteConversation: (id: string) => void;
+  readonly startNewConversation: () => void;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(
@@ -116,6 +117,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
     [activeConversationId, conversations]
   );
 
+  const startNewConversation = useCallback(() => {
+    setActiveConversationId("");
+  }, []);
+
   return (
     <ConversationContext.Provider
       value={{
@@ -124,6 +129,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
         createConversation,
         setActiveConversation,
         deleteConversation,
+        startNewConversation,
       }}
     >
       {children}
