@@ -2,15 +2,17 @@ import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify, createRemoteJWKSet } from "jose";
 
 /**
- * Edge-compatible middleware for Cloudflare Access authentication.
+ * Edge-compatible authentication middleware.
  *
- * Security tiers:
- *   Tier 2 (active when CF_ACCESS_AUD is set): jose JWKS signature verification
- *   Tier 1 (fallback): JWT structure + expiry check only
- *   Demo mode: all requests pass through
+ * Priority:
+ *   1. App JWT (fugue-auth cookie) — HS256 signed by AUTH_SECRET
+ *   2. Cloudflare Access JWT (CF_Authorization) — optional layer
+ *   3. Redirect to /login
  */
 
-const IS_DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+const AUTH_SECRET = process.env.AUTH_SECRET ?? "";
+const SECRET_KEY = new TextEncoder().encode(AUTH_SECRET);
+
 const CF_TEAM_NAME = process.env.NEXT_PUBLIC_CF_TEAM_NAME ?? "fugue";
 const CF_ACCESS_AUD = process.env.CF_ACCESS_AUD ?? "";
 
@@ -23,44 +25,27 @@ const JWKS = CF_ACCESS_AUD
     )
   : null;
 
-/** Clock skew buffer — avoids rejecting valid tokens due to time drift */
-const CLOCK_SKEW_MS = 30_000;
+const CLOCK_SKEW_S = 30;
 
-/**
- * Tier 1: Validate JWT structure and expiry without signature verification.
- * Uses atob() for Edge Runtime compatibility (no Node.js Buffer).
- */
-function isValidJwtStructure(token: string): boolean {
-  const parts = token.split(".");
-  if (parts.length !== 3) return false;
-
+/** Verify app JWT (HS256, signed by AUTH_SECRET) */
+async function verifyAppToken(token: string): Promise<boolean> {
+  if (!AUTH_SECRET) return false;
   try {
-    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const json = atob(base64);
-    const payload = JSON.parse(json) as { exp?: unknown };
-
-    if (typeof payload.exp !== "number" || Number.isNaN(payload.exp)) {
-      return false;
-    }
-
-    return payload.exp * 1000 > Date.now() - CLOCK_SKEW_MS;
+    await jwtVerify(token, SECRET_KEY, { clockTolerance: CLOCK_SKEW_S });
+    return true;
   } catch {
     return false;
   }
 }
 
-/**
- * Tier 2: Full JWKS signature verification via jose.
- * Returns true if the token is valid and signed by Cloudflare Access.
- */
-async function verifyJwtSignature(token: string): Promise<boolean> {
+/** Verify Cloudflare Access JWT (RS256, JWKS) */
+async function verifyCfToken(token: string): Promise<boolean> {
   if (!JWKS) return false;
-
   try {
     await jwtVerify(token, JWKS, {
       issuer: `https://${CF_TEAM_NAME}.cloudflareaccess.com`,
       audience: CF_ACCESS_AUD,
-      clockTolerance: CLOCK_SKEW_MS / 1000,
+      clockTolerance: CLOCK_SKEW_S,
     });
     return true;
   } catch {
@@ -69,34 +54,24 @@ async function verifyJwtSignature(token: string): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  // Demo mode: skip authentication
-  if (IS_DEMO) return NextResponse.next();
-
-  const token = request.cookies.get("CF_Authorization")?.value;
-
-  if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  // Tier 2: JWKS signature verification (when CF_ACCESS_AUD is configured)
-  if (JWKS) {
-    const valid = await verifyJwtSignature(token);
-    if (!valid) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  // 1. App JWT cookie
+  const appToken = request.cookies.get("fugue-auth")?.value;
+  if (appToken && (await verifyAppToken(appToken))) {
     return NextResponse.next();
   }
 
-  // Tier 1 fallback: structure + expiry only
-  if (!isValidJwtStructure(token)) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // 2. Cloudflare Access cookie (optional layer)
+  const cfToken = request.cookies.get("CF_Authorization")?.value;
+  if (cfToken && (await verifyCfToken(cfToken))) {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  // 3. No valid auth → redirect to login
+  return NextResponse.redirect(new URL("/login", request.url));
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|icon-.*\\.svg|manifest\\.json|login).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|icon-.*\\.svg|manifest\\.json|login|api/auth).*)",
   ],
 };

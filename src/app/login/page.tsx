@@ -4,35 +4,23 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
-const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-const CF_TEAM_NAME = process.env.NEXT_PUBLIC_CF_TEAM_NAME ?? "fugue";
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // If already authenticated, redirect to home
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/");
     }
   }, [isAuthenticated, router]);
 
-  // In production, redirect to CF Access login
-  useEffect(() => {
-    if (!IS_DEMO_MODE && !isAuthenticated) {
-      const redirectUrl = `https://${CF_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/login/${typeof window !== "undefined" ? window.location.origin : ""}?redirect_url=${typeof window !== "undefined" ? encodeURIComponent(window.location.origin) : ""}`;
-      window.location.href = redirectUrl;
-    }
-  }, [isAuthenticated]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setLocalError("");
     setIsLoading(true);
 
     const success = await login(email, password);
@@ -40,7 +28,7 @@ export default function LoginPage() {
     if (success) {
       router.push("/");
     } else {
-      setError("Invalid email or password");
+      setLocalError("Invalid email or password");
     }
 
     setIsLoading(false);
@@ -98,8 +86,8 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500 text-center">{error}</p>
+            {localError && (
+              <p className="text-sm text-red-500 text-center">{localError}</p>
             )}
 
             <button
@@ -110,14 +98,6 @@ export default function LoginPage() {
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-
-          {/* Demo credentials (only show in demo mode) */}
-          {IS_DEMO_MODE && (
-            <div className="text-center text-xs text-[var(--muted-foreground)] space-y-1">
-              <p>Demo credentials:</p>
-              <p className="font-mono">admin@fugue.dev / fugue2024</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
