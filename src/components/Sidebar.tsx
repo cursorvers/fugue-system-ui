@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useProject } from "@/contexts/ProjectContext";
 import { Logo } from "@/components/Logo";
 import { navigationSections, isActivePage, type ActivePage } from "@/config/navigation";
 
@@ -18,6 +19,10 @@ interface SidebarProps {
 
 export function Sidebar({ activePage = "overview", className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [creatingProject, setCreatingProject] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(SIDEBAR_KEY);
@@ -28,8 +33,21 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
     localStorage.setItem(SIDEBAR_KEY, String(collapsed));
   }, [collapsed]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+        setCreatingProject(false);
+        setNewProjectName("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { projects, activeProject, setActiveProject, createProject, deleteProject } = useProject();
   const router = useRouter();
 
   const isActive = (href: string) => isActivePage(href, activePage);
@@ -37,6 +55,19 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
   const handleLogout = () => {
     logout();
     router.push("/login");
+  };
+
+  const handleCreateProject = () => {
+    if (!newProjectName.trim()) return;
+    createProject(newProjectName.trim());
+    setNewProjectName("");
+    setCreatingProject(false);
+    setDropdownOpen(false);
+  };
+
+  const handleDeleteProject = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteProject(id);
   };
 
   return (
@@ -66,6 +97,123 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
             {collapsed ? "chevron_right" : "chevron_left"}
           </span>
         </button>
+      </div>
+
+      {/* Project Selector */}
+      <div className="px-2 py-2 border-b border-[var(--sidebar-border)] relative" ref={dropdownRef}>
+        <button
+          onClick={() => setDropdownOpen((prev) => !prev)}
+          className={cn(
+            "w-full min-h-[44px] flex items-center gap-2 px-3 py-2 rounded-[var(--radius-m)] hover:bg-[var(--sidebar-accent)] transition-colors",
+            collapsed ? "justify-center" : ""
+          )}
+          title={activeProject?.name || "Select project"}
+        >
+          <span className="material-symbols-sharp text-[20px] text-[var(--sidebar-foreground)] flex-shrink-0">
+            folder_open
+          </span>
+          {!collapsed && (
+            <>
+              <span className="flex-1 text-left text-sm font-primary font-medium text-[var(--foreground)] truncate">
+                {activeProject?.name || "No project"}
+              </span>
+              <span className={cn(
+                "material-symbols-sharp text-[16px] text-[var(--sidebar-foreground)] transition-transform",
+                dropdownOpen ? "rotate-180" : ""
+              )}>
+                expand_more
+              </span>
+            </>
+          )}
+        </button>
+
+        {/* Dropdown */}
+        {dropdownOpen && !collapsed && (
+          <div className="absolute left-2 right-2 top-[calc(100%+4px)] bg-[var(--sidebar)] border border-[var(--border)] rounded-[var(--radius-m)] shadow-lg z-50 py-1 max-h-[300px] overflow-y-auto">
+            {/* Project list */}
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => {
+                  setActiveProject(project.id);
+                  setDropdownOpen(false);
+                }}
+                className="group flex items-center gap-2 px-3 py-2 hover:bg-[var(--sidebar-accent)] cursor-pointer"
+              >
+                <span className={cn(
+                  "w-2 h-2 rounded-full flex-shrink-0",
+                  activeProject?.id === project.id ? "bg-[var(--primary)]" : "bg-transparent"
+                )} />
+                <span className="flex-1 text-sm font-primary text-[var(--foreground)] truncate">
+                  {project.name}
+                </span>
+                {project.id !== "default" && (
+                  <button
+                    onClick={(e) => handleDeleteProject(project.id, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded-[var(--radius-s)] hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)] transition-all"
+                    title="Delete project"
+                  >
+                    <span className="material-symbols-sharp text-[16px]">
+                      delete
+                    </span>
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {/* New Project section */}
+            <div className="border-t border-[var(--border)] mt-1 pt-1">
+              {creatingProject ? (
+                <div className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreateProject();
+                      if (e.key === "Escape") {
+                        setCreatingProject(false);
+                        setNewProjectName("");
+                      }
+                    }}
+                    placeholder="Project name"
+                    autoFocus
+                    className="w-full px-2 py-1 text-sm font-primary bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-s)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  />
+                  <div className="flex gap-1 mt-2">
+                    <button
+                      onClick={handleCreateProject}
+                      className="flex-1 px-2 py-1 text-xs font-primary font-medium bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[var(--radius-s)] hover:opacity-90 transition-opacity"
+                    >
+                      Create
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCreatingProject(false);
+                        setNewProjectName("");
+                      }}
+                      className="px-2 py-1 text-xs font-primary font-medium text-[var(--muted-foreground)] hover:bg-[var(--sidebar-accent)] rounded-[var(--radius-s)] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setCreatingProject(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[var(--sidebar-accent)] transition-colors"
+                >
+                  <span className="material-symbols-sharp text-[18px] text-[var(--primary)]">
+                    add
+                  </span>
+                  <span className="text-sm font-primary font-medium text-[var(--primary)]">
+                    New Project
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}

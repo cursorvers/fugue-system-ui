@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useMemo } from "react";
+import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -35,9 +35,22 @@ function ChatContent() {
     useChatHistory(conversationId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const { scrollHeight, scrollTop, clientHeight } = container;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+    // Show button if scrolled up more than 100px from bottom
+    setShowScrollButton(distanceFromBottom > 100);
   }, []);
 
   const messageCount = messages.length;
@@ -268,9 +281,13 @@ function ChatContent() {
         <ConversationTabs />
 
         {/* Chat area */}
-        <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-8 pb-4 lg:pb-6">
+        <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-8 pb-4 lg:pb-6 relative">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div
+            ref={messagesContainerRef}
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto overscroll-contain"
+          >
             {!hasUserMessages ? (
               <WelcomeScreen
                 isConnected={isConnected}
@@ -286,6 +303,19 @@ function ChatContent() {
               </div>
             )}
           </div>
+
+          {/* Scroll to bottom button */}
+          <button
+            onClick={scrollToBottom}
+            className={`absolute bottom-20 right-6 flex items-center justify-center min-w-[44px] min-h-[44px] w-[44px] h-[44px] rounded-full bg-[var(--card)] border border-[var(--border)] shadow-md transition-opacity ${
+              showScrollButton ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+            aria-label="Scroll to bottom"
+          >
+            <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">
+              keyboard_arrow_down
+            </span>
+          </button>
 
           {/* Input */}
           <ChatInput isConnected={isConnected} onSend={handleSend} />
