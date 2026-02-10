@@ -139,6 +139,70 @@
 
 ---
 
+## Phase 4: Chat UI リアーキテクチャ `cc:完了`
+
+> **Purpose**: 4コマンド廃止 → 自然言語チャット統一、会話タブ管理
+
+### 4-1. 型定義・Context 基盤
+- [x] `src/types/project.ts` — Project, Conversation 型定義
+- [x] `src/types/chat.ts` — Message 型定義（projectId, conversationId追加）
+- [x] `src/types/index.ts` — バレルエクスポート追加
+- [x] `src/contexts/ProjectContext.tsx` — プロジェクト管理（localStorage永続化）
+- [x] `src/contexts/ConversationContext.tsx` — 会話管理（タイトル自動生成）
+
+### 4-2. Chat コンポーネント分割
+- [x] `src/hooks/useChatHistory.ts` — 会話別メッセージ管理（100件上限、レガシーマイグレーション）
+- [x] `src/components/chat/ConversationTabs.tsx` — タブバー（横スクロール、アクティブハイライト）
+- [x] `src/components/chat/MessageBubble.tsx` — コードブロック検出、ルーティングバッジ、ステータス表示
+- [x] `src/components/chat/ChatInput.tsx` — テキストエリア（自動リサイズ、44px タッチターゲット）
+- [x] `src/components/chat/WelcomeScreen.tsx` — サジェスションチップ（自然言語）
+
+### 4-3. Chat ページ書き換え
+- [x] `src/app/chat/page.tsx` — 533行→280行に縮小、quickCommands削除、sendChat統一
+- [x] `src/app/layout.tsx` — ProjectProvider + ConversationProvider 追加
+
+---
+
+## Phase 5: モバイル A11y (iOS HIG) `cc:完了`
+
+> **Purpose**: 全インタラクティブ要素を iOS HIG 44px タッチターゲット準拠に
+
+- [x] `src/components/Button.tsx` — 全サイズ min-h-[44px] 追加
+- [x] `src/components/MobileNav.tsx` — ハンバーガー/検索ボタン min-h/min-w [44px]
+- [x] `src/app/page.tsx` — Agent リスト min-h-[44px]、badge 9→10px、latency 10→11px
+- [x] `src/app/runs/page.tsx` — ログ py-2→py-3、badge 9→10px
+- [x] `src/app/git/page.tsx` — badge 9→10px、タブ min-h-[44px]
+- [x] `src/app/work/page.tsx` — タブ min-h-[44px]
+
+---
+
+## Phase 6: プロダクション強化 `cc:完了`
+
+> **Purpose**: Vercel + Cloudflare Access デプロイ対応
+
+### 6-1. Edge Runtime Middleware
+- [x] `src/middleware.ts` — 2-tier JWT検証（jose JWKS + structure fallback）
+- [x] CF_ACCESS_AUD 設定時: Tier 2（署名検証）、未設定時: Tier 1（構造+期限）
+- [x] DEMO_MODE bypass、30s clock skew buffer
+
+### 6-2. フォント最適化
+- [x] `src/app/layout.tsx` — next/font (Geist, JetBrains_Mono) self-hosted
+- [x] `src/app/globals.css` — CSS variable fonts (var(--font-geist), var(--font-jetbrains-mono))
+- [x] CDN font links 3本削除（Material Symbols Sharpのみ残留）
+- [x] viewport export（themeColor deprecation 対応）
+
+### 6-3. WebSocket 本番対応
+- [x] WS URL: `process.env.NEXT_PUBLIC_WS_URL ?? ""` — ステージングフォールバック削除（3ファイル）
+- [x] `src/hooks/useWebSocket.ts` — console.log/warn 削除、空URL guard追加
+- [x] `src/hooks/useDashboardData.ts` — task-result ハンドラ追加（冪等更新）
+- [x] `src/hooks/useServerData.ts` — task-result ハンドラ追加（冪等更新）
+
+### 6-4. 認証・権限
+- [x] Settings 4ページ — `requiredRole="admin"` 追加
+- [x] `jose` パッケージ追加（Edge Runtime JWT検証）
+
+---
+
 ## Priority Matrix
 
 | Feature | Priority | Reason |
@@ -151,6 +215,9 @@
 | Phase 1-6: キーボード操作 | **Should** (部分) | Skip link + aria-live 完了 |
 | Phase 2: 縦切りスライス | **Must** ✅ | 統合リスク早期発見 |
 | Phase 3: 全接続 | **Must** ✅ | 認証以外完了 |
+| Phase 4: Chat UI | **Should** ✅ | UX統一 |
+| Phase 5: Mobile A11y | **Must** ✅ | iOS HIG準拠 |
+| Phase 6: Production | **Must** ✅ | デプロイ対応 |
 
 ---
 
@@ -158,4 +225,8 @@
 *Phase 0-1 completed: 2026-02-10*
 *Phase 2 completed: 2026-02-10*
 *Phase 3 completed: 2026-02-10 (auth skipped per user instruction)*
+*Phase 4 completed: 2026-02-10 (Chat UI rearchitecture)*
+*Phase 5 completed: 2026-02-10 (Mobile A11y)*
+*Phase 6 completed: 2026-02-10 (Production hardening)*
+*Recovery: 2026-02-10 (git filter-repo revert → full re-application)*
 *Approved by: 3-party vote (Claude + Codex + Gemini + GLM)*
