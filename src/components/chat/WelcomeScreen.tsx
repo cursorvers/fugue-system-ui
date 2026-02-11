@@ -8,24 +8,29 @@ interface WelcomeScreenProps {
 }
 
 const SUGGESTIONS: readonly {
+  readonly icon: string;
   readonly label: string;
   readonly prompt: string;
 }[] = [
   {
-    label: "デプロイ状況",
-    prompt: "全サービスのデプロイ状況を表示して",
+    icon: "task_alt",
+    label: "タスク状況",
+    prompt: "現在のタスク一覧と進捗を表示して",
   },
   {
-    label: "診断を実行",
-    prompt: "システム診断を実行して問題を報告して",
+    icon: "commit",
+    label: "Git変更確認",
+    prompt: "各リポジトリの未コミット変更とブランチ状態を確認して",
   },
   {
-    label: "最新PRレビュー",
-    prompt: "最新のPull Requestをレビューして変更を要約して",
+    icon: "monitoring",
+    label: "稼働状態",
+    prompt: "全プロバイダーの応答速度とエラー率を表示して",
   },
   {
-    label: "エージェント状態",
-    prompt: "稼働中の全エージェントの状態を確認して",
+    icon: "notification_important",
+    label: "アラート確認",
+    prompt: "未対応のアラートを表示して",
   },
 ];
 
@@ -79,6 +84,9 @@ export function WelcomeScreen({
                 : "opacity-50 cursor-not-allowed"
             )}
           >
+            <span className="material-symbols-sharp text-[16px] text-[var(--primary)] flex-shrink-0">
+              {s.icon}
+            </span>
             <span className="text-[12px] font-primary text-[var(--foreground)] leading-tight">
               {s.label}
             </span>
