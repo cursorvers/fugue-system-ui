@@ -247,7 +247,7 @@ function ChatContent() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-lg font-primary font-semibold text-[var(--foreground)]">
-                Chat
+                チャット
               </h1>
               <div className="flex items-center gap-1.5">
                 <span
@@ -314,7 +314,7 @@ function ChatContent() {
             className={`absolute bottom-20 right-6 flex items-center justify-center min-w-[44px] min-h-[44px] w-[44px] h-[44px] rounded-full bg-[var(--card)] border border-[var(--border)] shadow-md transition-opacity ${
               showScrollButton ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
-            aria-label="Scroll to bottom"
+            aria-label="最下部へスクロール"
           >
             <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">
               keyboard_arrow_down

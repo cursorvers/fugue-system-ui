@@ -27,7 +27,7 @@ export function ProjectTabs() {
               aria-selected={isActive}
               onClick={() => setActiveProject(project.id)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-m)] text-[11px] font-primary font-medium whitespace-nowrap transition-colors flex-shrink-0 min-h-[36px]",
+                "flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-m)] text-[11px] font-primary font-medium whitespace-nowrap transition-colors flex-shrink-0 min-h-[44px]",
                 isActive
                   ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                   : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"

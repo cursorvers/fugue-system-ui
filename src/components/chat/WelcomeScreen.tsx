@@ -71,7 +71,7 @@ export function WelcomeScreen({
       </div>
 
       {/* Suggestion chips */}
-      <div className="grid grid-cols-2 gap-2 w-full max-w-[340px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-[340px]">
         {SUGGESTIONS.map((s) => (
           <button
             key={s.label}

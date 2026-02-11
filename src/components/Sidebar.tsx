@@ -91,7 +91,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
         <button
           onClick={() => setCollapsed((prev) => !prev)}
           className="p-1 rounded-[var(--radius-s)] hover:bg-[var(--sidebar-accent)] transition-colors flex-shrink-0"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "サイドバーを展開" : "サイドバーを折りたたむ"}
         >
           <span className="material-symbols-sharp text-[16px] text-[var(--sidebar-foreground)]">
             {collapsed ? "chevron_right" : "chevron_left"}
@@ -107,7 +107,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
             "w-full min-h-[44px] flex items-center gap-2 px-3 py-2 rounded-[var(--radius-m)] hover:bg-[var(--sidebar-accent)] transition-colors",
             collapsed ? "justify-center" : ""
           )}
-          title={activeProject?.name || "Select project"}
+          title={activeProject?.name || "プロジェクトを選択"}
         >
           <span className="material-symbols-sharp text-[20px] text-[var(--sidebar-foreground)] flex-shrink-0">
             folder_open
@@ -115,7 +115,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
           {!collapsed && (
             <>
               <span className="flex-1 text-left text-sm font-primary font-medium text-[var(--foreground)] truncate">
-                {activeProject?.name || "No project"}
+                {activeProject?.name || "プロジェクトなし"}
               </span>
               <span className={cn(
                 "material-symbols-sharp text-[16px] text-[var(--sidebar-foreground)] transition-transform",
@@ -151,7 +151,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
                   <button
                     onClick={(e) => handleDeleteProject(project.id, e)}
                     className="opacity-0 group-hover:opacity-100 p-1 rounded-[var(--radius-s)] hover:bg-[var(--destructive)] hover:text-[var(--destructive-foreground)] transition-all"
-                    title="Delete project"
+                    title="プロジェクトを削除"
                   >
                     <span className="material-symbols-sharp text-[16px]">
                       delete
@@ -176,7 +176,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
                         setNewProjectName("");
                       }
                     }}
-                    placeholder="Project name"
+                    placeholder="プロジェクト名"
                     autoFocus
                     className="w-full px-2 py-1 text-sm font-primary bg-[var(--input)] border border-[var(--border)] rounded-[var(--radius-s)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   />
@@ -185,7 +185,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
                       onClick={handleCreateProject}
                       className="flex-1 px-2 py-1 text-xs font-primary font-medium bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[var(--radius-s)] hover:opacity-90 transition-opacity"
                     >
-                      Create
+                      作成
                     </button>
                     <button
                       onClick={() => {
@@ -194,7 +194,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
                       }}
                       className="px-2 py-1 text-xs font-primary font-medium text-[var(--muted-foreground)] hover:bg-[var(--sidebar-accent)] rounded-[var(--radius-s)] transition-colors"
                     >
-                      Cancel
+                      キャンセル
                     </button>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
                     add
                   </span>
                   <span className="text-sm font-primary font-medium text-[var(--primary)]">
-                    New Project
+                    新規プロジェクト
                   </span>
                 </button>
               )}
@@ -265,14 +265,14 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
       {!collapsed ? (
         <div className="px-3 py-2 mx-2 mb-2 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center gap-2 cursor-pointer hover:bg-[var(--secondary)] transition-colors">
           <span className="material-symbols-sharp text-[16px] text-[var(--muted-foreground)]">search</span>
-          <span className="text-xs font-primary text-[var(--muted-foreground)] flex-1">Search</span>
+          <span className="text-xs font-primary text-[var(--muted-foreground)] flex-1">検索</span>
           <span className="kbd">&#8984;K</span>
         </div>
       ) : (
         <div className="flex justify-center mb-2">
           <button
             className="p-2 rounded-[var(--radius-m)] hover:bg-[var(--sidebar-accent)] transition-colors"
-            title="Search (⌘K)"
+            title="検索 (⌘K)"
           >
             <span className="material-symbols-sharp text-[18px] text-[var(--muted-foreground)]">search</span>
           </button>
@@ -298,7 +298,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
               <button
                 onClick={toggleTheme}
                 className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--sidebar-accent)] transition-colors"
-                title={theme === "dark" ? "Light mode" : "Dark mode"}
+                title={theme === "dark" ? "ライトモード" : "ダークモード"}
               >
                 <span className="material-symbols-sharp text-[16px] text-[var(--sidebar-foreground)]">
                   {theme === "dark" ? "light_mode" : "dark_mode"}
@@ -307,7 +307,7 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
               <button
                 onClick={handleLogout}
                 className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--sidebar-accent)] transition-colors"
-                title="Logout"
+                title="ログアウト"
               >
                 <span className="material-symbols-sharp text-[16px] text-[var(--sidebar-foreground)]">
                   logout

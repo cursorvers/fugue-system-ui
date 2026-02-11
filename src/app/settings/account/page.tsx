@@ -23,10 +23,10 @@ export default function AccountSettingsPage() {
           <div className="flex-1 p-4 lg:p-10 overflow-auto">
             <div className="mb-4 lg:mb-6">
               <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-                Account
+                アカウント
               </h1>
               <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
-                Manage your account settings
+                アカウント設定を管理
               </p>
             </div>
 
@@ -34,7 +34,7 @@ export default function AccountSettingsPage() {
               <Card>
                 <CardHeader>
                   <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                    Profile
+                    プロフィール
                   </h2>
                 </CardHeader>
                 <CardContent>
@@ -47,7 +47,7 @@ export default function AccountSettingsPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-[var(--foreground)]">
-                          {user?.name || "Guest User"}
+                          {user?.name || "ゲストユーザー"}
                         </p>
                         <p className="text-xs text-[var(--muted-foreground)]">
                           {user?.email || "guest@fugue.local"}
@@ -57,7 +57,7 @@ export default function AccountSettingsPage() {
 
                     <div className="pt-3 border-t border-[var(--border)]">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[var(--muted-foreground)]">Role</span>
+                        <span className="text-xs text-[var(--muted-foreground)]">ロール</span>
                         <Badge variant="success">Orchestrator</Badge>
                       </div>
                     </div>
@@ -68,7 +68,7 @@ export default function AccountSettingsPage() {
               <Card>
                 <CardHeader>
                   <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                    Connected Services
+                    接続サービス
                   </h2>
                 </CardHeader>
                 <CardContent>
@@ -78,14 +78,14 @@ export default function AccountSettingsPage() {
                         <span className="material-symbols-sharp text-[var(--foreground)]">cloud</span>
                         <span className="text-sm text-[var(--foreground)]">Cloudflare Workers</span>
                       </div>
-                      <Badge variant="success">Connected</Badge>
+                      <Badge variant="success">接続済み</Badge>
                     </div>
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-sharp text-[var(--foreground)]">smart_toy</span>
                         <span className="text-sm text-[var(--foreground)]">OpenAI Codex</span>
                       </div>
-                      <Badge variant="success">Active</Badge>
+                      <Badge variant="success">有効</Badge>
                     </div>
                   </div>
                 </CardContent>

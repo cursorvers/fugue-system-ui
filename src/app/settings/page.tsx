@@ -8,26 +8,26 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 const SETTINGS_ITEMS = [
   {
     icon: "person",
-    label: "Account",
-    description: "Profile and connected services",
+    label: "アカウント",
+    description: "プロフィールと接続サービス",
     href: "/settings/account",
   },
   {
     icon: "palette",
-    label: "Appearance",
-    description: "Theme and display preferences",
+    label: "外観",
+    description: "テーマと表示設定",
     href: "/settings/appearance",
   },
   {
     icon: "notifications",
-    label: "Notifications",
-    description: "Alert and notification settings",
+    label: "通知",
+    description: "アラートと通知設定",
     href: "/settings/notifications",
   },
   {
     icon: "help",
-    label: "Help",
-    description: "Documentation and support",
+    label: "ヘルプ",
+    description: "ドキュメントとサポート",
     href: "/settings/help",
   },
 ] as const;
@@ -46,10 +46,10 @@ export default function SettingsPage() {
           <div className="flex-1 p-4 lg:p-10 overflow-auto">
             <div className="mb-4 lg:mb-6">
               <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-                Settings
+                設定
               </h1>
               <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
-                Manage your preferences
+                各種設定を管理
               </p>
             </div>
 

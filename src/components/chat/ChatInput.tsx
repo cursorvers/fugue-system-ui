@@ -10,6 +10,7 @@ interface ChatInputProps {
 
 export function ChatInput({ isConnected, onSend }: ChatInputProps) {
   const [text, setText] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = useCallback(() => {
@@ -24,12 +25,12 @@ export function ChatInput({ isConnected, onSend }: ChatInputProps) {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
+      if (e.key === "Enter" && !e.shiftKey && !isComposing) {
         e.preventDefault();
         handleSend();
       }
     },
-    [handleSend]
+    [handleSend, isComposing]
   );
 
   const handleInput = useCallback(() => {
@@ -50,6 +51,8 @@ export function ChatInput({ isConnected, onSend }: ChatInputProps) {
             handleInput();
           }}
           onKeyDown={handleKeyDown}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
           placeholder={isConnected ? "何でも聞いてください..." : "接続中..."}
           disabled={!isConnected}
           rows={1}
@@ -69,7 +72,7 @@ export function ChatInput({ isConnected, onSend }: ChatInputProps) {
             ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90"
             : "bg-[var(--secondary)] text-[var(--muted-foreground)] cursor-not-allowed"
         )}
-        aria-label="Send message"
+        aria-label="メッセージを送信"
       >
         <span className="material-symbols-sharp text-[20px]">send</span>
       </button>

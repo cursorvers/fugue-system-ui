@@ -13,25 +13,25 @@ interface ConnectionStatusProps {
 
 const stateConfig: Record<ConnectionState, { label: string; icon: string; color: string; bg: string }> = {
   connected: {
-    label: "Connected",
+    label: "接続済み",
     icon: "wifi",
     color: "text-[var(--color-success-foreground)]",
     bg: "bg-[var(--color-success)]",
   },
   connecting: {
-    label: "Connecting...",
+    label: "接続中...",
     icon: "sync",
     color: "text-[var(--color-info-foreground)]",
     bg: "bg-[var(--color-info)]",
   },
   disconnected: {
-    label: "Disconnected",
+    label: "切断",
     icon: "wifi_off",
     color: "text-[var(--color-warning-foreground)]",
     bg: "bg-[var(--color-warning)]",
   },
   error: {
-    label: "Connection error",
+    label: "接続エラー",
     icon: "error",
     color: "text-[var(--color-error-foreground)]",
     bg: "bg-[var(--color-error)]",
@@ -78,7 +78,7 @@ export function ConnectionStatus({
           onClick={onReconnect}
           className="font-medium underline underline-offset-2 hover:no-underline"
         >
-          Reconnect
+          再接続
         </button>
       )}
     </div>

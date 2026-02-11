@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (success) {
       router.push("/");
     } else {
-      setLocalError("Invalid email or password");
+      setLocalError("メールアドレスまたはパスワードが正しくありません");
     }
 
     setIsLoading(false);
@@ -49,10 +49,10 @@ export default function LoginPage() {
           {/* Title */}
           <div className="text-center space-y-2">
             <h1 className="font-primary text-xl font-semibold text-[var(--foreground)]">
-              Welcome Back
+              おかえりなさい
             </h1>
             <p className="text-sm text-[var(--muted-foreground)]">
-              Sign in to your orchestrator
+              Orchestratorにサインイン
             </p>
           </div>
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[var(--foreground)]">
-                Email
+                メールアドレス
               </label>
               <input
                 type="email"
@@ -74,7 +74,7 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[var(--foreground)]">
-                Password
+                パスワード
               </label>
               <input
                 type="password"
@@ -95,7 +95,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full h-12 bg-[var(--primary)] text-white font-primary font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "サインイン中..." : "サインイン"}
             </button>
           </form>
         </div>

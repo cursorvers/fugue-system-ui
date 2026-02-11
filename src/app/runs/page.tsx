@@ -151,10 +151,10 @@ export default function RunsPage() {
           <div className="flex-1 p-4 lg:p-8 overflow-auto">
             <div className="mb-6">
               <h1 className="text-lg lg:text-xl font-primary font-semibold text-[var(--foreground)]">
-                Runs
+                実行履歴
               </h1>
               <p className="text-xs font-secondary text-[var(--muted-foreground)] mt-0.5">
-                Execution history and system logs
+                実行履歴とシステムログ
               </p>
             </div>
 
@@ -162,19 +162,19 @@ export default function RunsPage() {
             <Card className="mb-6">
               <CardHeader className="flex items-center justify-between">
                 <h2 className="text-[13px] font-primary font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                  Recent Runs
+                  最近の実行
                 </h2>
-                <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">{activeRuns.length} total</span>
+                <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">{activeRuns.length} 件</span>
               </CardHeader>
               <CardContent className="p-0">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[var(--border)]">
-                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Run</th>
-                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">Agent</th>
-                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Status</th>
-                      <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">Duration</th>
-                      <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Time</th>
+                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">実行</th>
+                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">エージェント</th>
+                      <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">ステータス</th>
+                      <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">所要時間</th>
+                      <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">時刻</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -227,7 +227,7 @@ export default function RunsPage() {
             <Card>
               <CardHeader className="flex items-center justify-between">
                 <h2 className="text-[13px] font-primary font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                  Live Logs
+                  ライブログ
                 </h2>
                 <Badge variant="success" dot>Live</Badge>
               </CardHeader>
@@ -295,21 +295,21 @@ export default function RunsPage() {
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Agent</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">エージェント</p>
                     <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{selectedRun.agent}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Status</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">ステータス</p>
                     <div className="mt-0.5">
                       <Badge variant={statusConfig[selectedRun.status].badge}>{selectedRun.status}</Badge>
                     </div>
                   </div>
                   <div>
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Duration</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">所要時間</p>
                     <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{selectedRun.duration}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Started</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">開始</p>
                     <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{selectedRun.time}</p>
                   </div>
                 </div>
@@ -318,10 +318,10 @@ export default function RunsPage() {
               {/* Logs */}
               <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)]">
                 <h3 className="text-[11px] font-primary font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-                  Execution Logs
+                  実行ログ
                 </h3>
                 <span className="text-[10px] font-secondary text-[var(--muted-foreground)]">
-                  {selectedLogs.length} entries
+                  {selectedLogs.length} 件
                 </span>
               </div>
               <div className="flex-1 overflow-auto">
@@ -342,7 +342,7 @@ export default function RunsPage() {
                 ))}
                 {selectedLogs.length === 0 && (
                   <div className="px-4 py-8 text-center">
-                    <span className="text-[12px] font-secondary text-[var(--muted-foreground)]">No logs available</span>
+                    <span className="text-[12px] font-secondary text-[var(--muted-foreground)]">ログがありません</span>
                   </div>
                 )}
               </div>

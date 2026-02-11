@@ -189,12 +189,12 @@ export default function GitPage() {
                   Git
                 </h1>
                 <p className="text-xs font-secondary text-[var(--muted-foreground)] mt-0.5">
-                  Repository status and history
+                  リポジトリの状態と履歴
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="success" dot>{activeBranches.find((b) => b.isCurrent)?.name ?? "main"}</Badge>
-                <Badge variant="outline">{activeBranches.length} branches</Badge>
+                <Badge variant="outline">{activeBranches.length} ブランチ</Badge>
               </div>
             </div>
 
@@ -203,7 +203,7 @@ export default function GitPage() {
               <CardContent className="flex items-center gap-4 py-2.5">
                 <span className="material-symbols-sharp text-[18px] text-[var(--color-warning-foreground)]">pending</span>
                 <span className="text-[13px] font-primary text-[var(--foreground)]">
-                  {activeChangedFiles.length} uncommitted changes
+                  {activeChangedFiles.length} 件の未コミット変更
                 </span>
                 <div className="flex items-center gap-2 text-[11px] font-secondary">
                   <span className="text-[var(--color-success-foreground)]">
@@ -291,7 +291,7 @@ export default function GitPage() {
                                 {branch.name}
                               </code>
                               {branch.isCurrent && (
-                                <Badge variant="success" className="text-[10px]">current</Badge>
+                                <Badge variant="success" className="text-[10px]">現在</Badge>
                               )}
                             </div>
                             <p className="text-[11px] font-secondary text-[var(--muted-foreground)]">
@@ -370,11 +370,11 @@ export default function GitPage() {
                     <p className="text-[13px] font-primary font-medium text-[var(--foreground)]">{commit.message}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Author</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">作成者</p>
                         <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{commit.author}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Time</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">時刻</p>
                         <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{commit.time}</p>
                       </div>
                     </div>
@@ -388,7 +388,7 @@ export default function GitPage() {
                   {/* Description */}
                   {detail && (
                     <div className="px-4 py-3 border-b border-[var(--border)]">
-                      <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Description</p>
+                      <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">説明</p>
                       <p className="text-[12px] font-primary text-[var(--foreground)] leading-relaxed">{detail.description}</p>
                     </div>
                   )}
@@ -396,7 +396,7 @@ export default function GitPage() {
                   {/* Files changed */}
                   {detail && (
                     <div className="px-4 py-3">
-                      <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Files Changed</p>
+                      <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">変更ファイル</p>
                       <div className="space-y-1">
                         {detail.files.map((file, i) => (
                           <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors">
@@ -413,7 +413,7 @@ export default function GitPage() {
 
                   {!detail && (
                     <div className="px-4 py-8 text-center">
-                      <span className="text-[12px] font-secondary text-[var(--muted-foreground)]">No detail data available</span>
+                      <span className="text-[12px] font-secondary text-[var(--muted-foreground)]">詳細データがありません</span>
                     </div>
                   )}
                 </div>

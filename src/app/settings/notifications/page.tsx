@@ -15,10 +15,10 @@ interface NotificationSetting {
 
 export default function NotificationSettingsPage() {
   const [settings, setSettings] = useState<NotificationSetting[]>([
-    { id: "errors", label: "Errors", description: "Critical errors and failures", enabled: true },
-    { id: "warnings", label: "Warnings", description: "Warnings and potential issues", enabled: true },
-    { id: "tasks", label: "Task Updates", description: "When tasks complete or fail", enabled: true },
-    { id: "agents", label: "Agent Status", description: "Agent online/offline changes", enabled: false },
+    { id: "errors", label: "エラー", description: "致命的なエラーと障害", enabled: true },
+    { id: "warnings", label: "警告", description: "警告と潜在的な問題", enabled: true },
+    { id: "tasks", label: "タスク更新", description: "タスクの完了・失敗通知", enabled: true },
+    { id: "agents", label: "エージェント状態", description: "エージェントのオンライン/オフライン変更", enabled: false },
   ]);
 
   const toggleSetting = (id: string) => {
@@ -40,17 +40,17 @@ export default function NotificationSettingsPage() {
           <div className="flex-1 p-4 lg:p-10 overflow-auto">
             <div className="mb-4 lg:mb-6">
               <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-                Notification Settings
+                通知設定
               </h1>
               <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
-                Choose what notifications you receive
+                受け取る通知を選択
               </p>
             </div>
 
             <Card className="max-w-md">
               <CardHeader>
                 <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                  Notification Types
+                  通知の種類
                 </h2>
               </CardHeader>
               <CardContent>

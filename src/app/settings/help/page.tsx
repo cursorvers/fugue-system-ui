@@ -34,7 +34,7 @@ export default function HelpPage() {
           <div className="flex-1 p-4 lg:p-10 overflow-auto">
             <div className="mb-4 lg:mb-6">
               <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-                Help & Guide
+                ヘルプ & ガイド
               </h1>
               <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
                 FUGUEの使い方ガイド
@@ -45,7 +45,7 @@ export default function HelpPage() {
               <Card>
                 <CardHeader>
                   <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                    Quick Commands
+                    クイックコマンド
                   </h2>
                 </CardHeader>
                 <CardContent>
@@ -67,7 +67,7 @@ export default function HelpPage() {
               <Card>
                 <CardHeader>
                   <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                    Tips
+                    ヒント
                   </h2>
                 </CardHeader>
                 <CardContent>
@@ -87,7 +87,7 @@ export default function HelpPage() {
               <Card>
                 <CardHeader>
                   <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-                    Architecture
+                    アーキテクチャ
                   </h2>
                 </CardHeader>
                 <CardContent>

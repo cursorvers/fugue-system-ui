@@ -20,10 +20,10 @@ function AppearanceContent() {
       <div className="flex-1 p-4 lg:p-10 overflow-auto">
         <div className="mb-4 lg:mb-6">
           <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-            Appearance
+            外観
           </h1>
           <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
-            Loading...
+            読み込み中...
           </p>
         </div>
       </div>
@@ -34,17 +34,17 @@ function AppearanceContent() {
     <div className="flex-1 p-4 lg:p-10 overflow-auto">
       <div className="mb-4 lg:mb-6">
         <h1 className="font-primary text-xl lg:text-2xl font-semibold text-[var(--foreground)]">
-          Appearance
+          外観
         </h1>
         <p className="text-xs lg:text-sm text-[var(--muted-foreground)] mt-1">
-          Customize the look and feel
+          テーマと表示のカスタマイズ
         </p>
       </div>
 
       <Card className="max-w-md">
         <CardHeader>
           <h2 className="font-primary text-sm lg:text-base font-semibold text-[var(--foreground)]">
-            Theme
+            テーマ
           </h2>
         </CardHeader>
         <CardContent>
@@ -59,8 +59,8 @@ function AppearanceContent() {
             >
               <span className="material-symbols-sharp text-[var(--foreground)]">dark_mode</span>
               <div className="text-left">
-                <p className="text-sm font-medium text-[var(--foreground)]">Dark</p>
-                <p className="text-xs text-[var(--muted-foreground)]">Easy on the eyes</p>
+                <p className="text-sm font-medium text-[var(--foreground)]">ダーク</p>
+                <p className="text-xs text-[var(--muted-foreground)]">目に優しい</p>
               </div>
               {theme === "dark" && (
                 <span className="material-symbols-sharp text-[var(--primary)] ml-auto">check</span>
@@ -77,8 +77,8 @@ function AppearanceContent() {
             >
               <span className="material-symbols-sharp text-[var(--foreground)]">light_mode</span>
               <div className="text-left">
-                <p className="text-sm font-medium text-[var(--foreground)]">Light</p>
-                <p className="text-xs text-[var(--muted-foreground)]">Classic bright theme</p>
+                <p className="text-sm font-medium text-[var(--foreground)]">ライト</p>
+                <p className="text-xs text-[var(--muted-foreground)]">明るいテーマ</p>
               </div>
               {theme === "light" && (
                 <span className="material-symbols-sharp text-[var(--primary)] ml-auto">check</span>

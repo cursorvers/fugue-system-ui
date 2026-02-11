@@ -159,10 +159,10 @@ export default function WorkPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-lg lg:text-xl font-primary font-semibold text-[var(--foreground)]">
-                  Work
+                  ワーク
                 </h1>
                 <p className="text-xs font-secondary text-[var(--muted-foreground)] mt-0.5">
-                  Agents and tasks in one view
+                  エージェントとタスクの一覧
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function WorkPage() {
                     : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
-                Agents
+                エージェント
                 <span className="ml-1.5 text-[11px] font-secondary text-[var(--muted-foreground)]">
                   {staticAgents.length}
                 </span>
@@ -190,7 +190,7 @@ export default function WorkPage() {
                     : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
-                Tasks
+                タスク
                 <span className="ml-1.5 text-[11px] font-secondary text-[var(--muted-foreground)]">
                   {tasks.length}
                 </span>
@@ -209,7 +209,7 @@ export default function WorkPage() {
                       </span>
                       <input
                         type="text"
-                        placeholder="Filter agents..."
+                        placeholder="エージェントを検索..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 rounded-[var(--radius-m)] border border-[var(--border)] bg-[var(--card)] text-[13px] font-primary text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -223,11 +223,11 @@ export default function WorkPage() {
                   <div className="divide-y divide-[var(--border)]">
                     {/* Table header */}
                     <div className="grid grid-cols-[1fr_80px_60px_80px_100px] gap-4 px-4 py-2 text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider hidden lg:grid">
-                      <span>Agent</span>
-                      <span>Status</span>
-                      <span className="text-right">Tasks</span>
-                      <span className="text-right">Success</span>
-                      <span className="text-right">Quota</span>
+                      <span>エージェント</span>
+                      <span>ステータス</span>
+                      <span className="text-right">タスク</span>
+                      <span className="text-right">成功率</span>
+                      <span className="text-right">クォータ</span>
                     </div>
 
                     {visibleAgents.map((agent) => {
@@ -305,7 +305,7 @@ export default function WorkPage() {
                           {/* Mobile: inline stats */}
                           <div className="lg:hidden flex items-center gap-3 text-[11px] font-secondary text-[var(--muted-foreground)]">
                             <Badge variant={config.badge} dot className="text-[10px]">{agent.status}</Badge>
-                            <span>{agent.tasks} tasks</span>
+                            <span>{agent.tasks} タスク</span>
                             <span>{agent.successRate}</span>
                           </div>
                         </div>
@@ -323,7 +323,7 @@ export default function WorkPage() {
                     <span className="material-symbols-sharp text-[16px]">
                       {agentsExpanded ? "expand_less" : "expand_more"}
                     </span>
-                    {agentsExpanded ? "Show less" : `Show ${hiddenCount} more`}
+                    {agentsExpanded ? "折りたたむ" : `他${hiddenCount}件を表示`}
                   </button>
                 )}
               </div>
@@ -336,10 +336,10 @@ export default function WorkPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-[var(--border)]">
-                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Task</th>
-                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">Agent</th>
-                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Status</th>
-                        <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Time</th>
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">タスク</th>
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">エージェント</th>
+                        <th className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">ステータス</th>
+                        <th className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">時刻</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -421,15 +421,15 @@ export default function WorkPage() {
                   <div className="px-4 py-3 border-b border-[var(--border)]">
                     <div className="grid grid-cols-3 gap-3">
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Status</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">ステータス</p>
                         <div className="mt-1"><Badge variant={config.badge} dot>{agent.status}</Badge></div>
                       </div>
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Tasks</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">タスク</p>
                         <p className="text-[16px] font-secondary font-semibold text-[var(--foreground)] mt-1">{agent.tasks}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Success</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">成功率</p>
                         <p className="text-[16px] font-secondary font-semibold text-[var(--color-success-foreground)] mt-1">{agent.successRate}</p>
                       </div>
                     </div>
@@ -437,13 +437,13 @@ export default function WorkPage() {
 
                   {/* Description */}
                   <div className="px-4 py-3 border-b border-[var(--border)]">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">About</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">概要</p>
                     <p className="text-[12px] font-primary text-[var(--foreground)] leading-relaxed">{detail.description}</p>
                   </div>
 
                   {/* Recent Tasks */}
                   <div className="px-4 py-3 border-b border-[var(--border)]">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Recent Activity</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">最近のアクティビティ</p>
                     <div className="space-y-1.5">
                       {detail.recentTasks.map((t, i) => (
                         <div key={i} className="flex items-start gap-2">
@@ -456,7 +456,7 @@ export default function WorkPage() {
 
                   {/* Config */}
                   <div className="px-4 py-3">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Configuration</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">設定</p>
                     <div className="space-y-1">
                       {detail.config.map((c, i) => (
                         <p key={i} className="text-[11px] font-secondary text-[var(--muted-foreground)]">{c}</p>
@@ -501,7 +501,7 @@ export default function WorkPage() {
                     <p className="text-[13px] font-primary font-medium text-[var(--foreground)]">{task.name}</p>
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">Agent</p>
+                        <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider">エージェント</p>
                         <p className="text-[12px] font-secondary text-[var(--foreground)] mt-0.5">{task.agent}</p>
                       </div>
                       <div>
@@ -516,12 +516,12 @@ export default function WorkPage() {
                   </div>
 
                   <div className="px-4 py-3 border-b border-[var(--border)]">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Description</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">説明</p>
                     <p className="text-[12px] font-primary text-[var(--foreground)] leading-relaxed">{detail.description}</p>
                   </div>
 
                   <div className="px-4 py-3 border-b border-[var(--border)]">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Execution Steps</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-2">実行ステップ</p>
                     <div className="space-y-1.5">
                       {detail.steps.map((step, i) => (
                         <div key={i} className="flex items-start gap-2">
@@ -533,7 +533,7 @@ export default function WorkPage() {
                   </div>
 
                   <div className="px-4 py-3">
-                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Output</p>
+                    <p className="text-[10px] font-primary text-[var(--muted-foreground)] uppercase tracking-wider mb-1">出力</p>
                     <div className="bg-[var(--muted)] rounded-[var(--radius-m)] p-3">
                       <p className="text-[11px] font-secondary text-[var(--foreground)]">{detail.output}</p>
                     </div>

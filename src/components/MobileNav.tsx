@@ -40,7 +40,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
         <button
           onClick={() => setIsOpen(true)}
           className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-          aria-label="Open menu"
+          aria-label="メニューを開く"
         >
           <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">menu</span>
         </button>
@@ -51,7 +51,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
 
         <button
           className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-          aria-label="Search"
+          aria-label="検索"
         >
           <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">search</span>
         </button>
@@ -80,7 +80,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
           <button
             onClick={() => setIsOpen(false)}
             className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-            aria-label="Close menu"
+            aria-label="メニューを閉じる"
           >
             <span className="material-symbols-sharp text-[18px] text-[var(--foreground)]">close</span>
           </button>
@@ -140,7 +140,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
             <button
               onClick={toggleTheme}
               className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-              title={theme === "dark" ? "Light mode" : "Dark mode"}
+              title={theme === "dark" ? "ライトモード" : "ダークモード"}
             >
               <span className="material-symbols-sharp text-[16px] text-[var(--muted-foreground)]">
                 {theme === "dark" ? "light_mode" : "dark_mode"}
@@ -149,7 +149,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
             <button
               onClick={handleLogout}
               className="p-1.5 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-              title="Logout"
+              title="ログアウト"
             >
               <span className="material-symbols-sharp text-[16px] text-[var(--muted-foreground)]">logout</span>
             </button>

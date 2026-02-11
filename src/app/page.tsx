@@ -75,10 +75,10 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg lg:text-xl font-primary font-semibold text-[var(--foreground)]">
-                  Overview
+                  概要
                 </h1>
                 <p className="text-xs font-secondary text-[var(--muted-foreground)] mt-0.5">
-                  System status and recent activity
+                  システム状況と最近のアクティビティ
                   {dataSource === "live" && (
                     <span className="ml-2 text-[var(--color-success-foreground)]">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-success-foreground)] mr-1 align-middle" aria-hidden="true" />
@@ -89,10 +89,10 @@ export default function Dashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={isConnected ? "success" : "secondary"} dot>
-                  {isConnected ? "Online" : "Offline"}
+                  {isConnected ? "オンライン" : "オフライン"}
                 </Badge>
                 {dataSource === "live" && (
-                  <Button variant="ghost" size="icon" onClick={refresh} aria-label="Refresh data">
+                  <Button variant="ghost" size="icon" onClick={refresh} aria-label="データを更新">
                     <span className="material-symbols-sharp text-[20px]">refresh</span>
                   </Button>
                 )}
@@ -101,7 +101,7 @@ export default function Dashboard() {
                   size="icon"
                   onClick={() => setInboxOpen(!inboxOpen)}
                   className="relative"
-                  aria-label={`Inbox${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+                  aria-label={`受信箱${unreadCount > 0 ? ` (${unreadCount}件 未読)` : ""}`}
                 >
                   <span className="material-symbols-sharp text-[20px]">inbox</span>
                   {unreadCount > 0 && (
@@ -116,28 +116,28 @@ export default function Dashboard() {
             {/* Metrics */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <MetricCard
-                label="Active Agents"
+                label="稼働エージェント"
                 value={`${metrics.activeAgents.current} / ${metrics.activeAgents.total}`}
                 icon="smart_toy"
-                change="+1 today"
+                change="+1 本日"
                 changeType="positive"
               />
               <MetricCard
-                label="Tasks / 24h"
+                label="タスク / 24h"
                 value={metrics.tasksLast24h.count}
                 icon="task_alt"
                 change={metrics.tasksLast24h.changePercent}
                 changeType={metrics.tasksLast24h.changeType}
               />
               <MetricCard
-                label="Success Rate"
+                label="成功率"
                 value={metrics.successRate.value}
                 icon="verified"
                 change={metrics.successRate.change}
                 changeType={metrics.successRate.changeType}
               />
               <MetricCard
-                label="Avg Latency"
+                label="平均レイテンシ"
                 value={metrics.avgLatency.value}
                 icon="speed"
                 change={metrics.avgLatency.change}
@@ -151,10 +151,10 @@ export default function Dashboard() {
               <Card className="flex flex-col min-h-0">
                 <CardHeader className="flex items-center justify-between">
                   <h2 className="text-[13px] font-primary font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                    Agents
+                    エージェント
                   </h2>
                   <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-                    {agents.filter((a) => a.status === "active").length} active
+                    {agents.filter((a) => a.status === "active").length} 稼働中
                   </span>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col gap-1 overflow-auto p-2">
@@ -204,19 +204,19 @@ export default function Dashboard() {
               <Card className="lg:col-span-2 flex flex-col min-h-0">
                 <CardHeader className="flex items-center justify-between">
                   <h2 className="text-[13px] font-primary font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                    Recent Runs
+                    最近の実行
                   </h2>
-                  <Button variant="ghost" size="sm">View all</Button>
+                  <Button variant="ghost" size="sm">すべて表示</Button>
                 </CardHeader>
                 <CardContent className="flex-1 overflow-auto p-0">
                   <table className="w-full">
-                    <caption className="sr-only">Recent orchestration runs</caption>
+                    <caption className="sr-only">最近のオーケストレーション実行</caption>
                     <thead>
                       <tr className="border-b border-[var(--border)]">
-                        <th scope="col" className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Run</th>
-                        <th scope="col" className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Status</th>
-                        <th scope="col" className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">Duration</th>
-                        <th scope="col" className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">Time</th>
+                        <th scope="col" className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">実行</th>
+                        <th scope="col" className="text-left text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">ステータス</th>
+                        <th scope="col" className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2 hidden sm:table-cell">所要時間</th>
+                        <th scope="col" className="text-right text-[10px] font-primary font-medium text-[var(--muted-foreground)] uppercase tracking-wider px-4 py-2">時刻</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -274,23 +274,23 @@ export default function Dashboard() {
             <aside
               className="absolute right-0 top-0 h-full w-[340px] bg-[var(--card)] border-l border-[var(--border)] shadow-[var(--shadow-l)] flex flex-col z-50"
               role="dialog"
-              aria-label="Inbox"
+              aria-label="受信箱"
               aria-modal="true"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
                 <h2 className="text-[13px] font-primary font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                  Inbox
+                  受信箱
                 </h2>
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="sm" className="text-[11px]">
-                    Mark all read
+                    すべて既読にする
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => setInboxOpen(false)} aria-label="Close inbox">
+                  <Button variant="ghost" size="icon" onClick={() => setInboxOpen(false)} aria-label="受信箱を閉じる">
                     <span className="material-symbols-sharp text-[18px]">close</span>
                   </Button>
                 </div>
               </div>
-              <div className="flex-1 overflow-auto" role="list" aria-label="Inbox messages">
+              <div className="flex-1 overflow-auto" role="list" aria-label="受信メッセージ">
                 {inbox.map((item) => {
                   const config = inboxTypeConfig[item.type];
                   return (
@@ -310,7 +310,7 @@ export default function Dashboard() {
                             {item.title}
                           </p>
                           {!item.read && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] flex-shrink-0" aria-label="Unread" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] flex-shrink-0" aria-label="未読" />
                           )}
                         </div>
                         <p className="text-[11px] font-secondary text-[var(--muted-foreground)] truncate mt-0.5">
