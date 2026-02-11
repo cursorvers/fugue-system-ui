@@ -57,11 +57,6 @@ function ChatContent() {
     setShowScrollButton(distanceFromBottom > 100);
   }, []);
 
-  const messageCount = messages.length;
-  useEffect(() => {
-    if (messageCount > 0) scrollToBottom();
-  }, [messageCount, scrollToBottom]);
-
   const handleWebSocketMessage = useCallback(
     (wsMessage: WebSocketMessage) => {
       switch (wsMessage.type) {
@@ -171,14 +166,7 @@ function ChatContent() {
     maxReconnectAttempts: 3,
     reconnectInterval: 5000,
     onMessage: handleWebSocketMessage,
-    onOpen: () => {
-      addMessage({
-        id: `sys-connected-${Date.now()}`,
-        type: "system",
-        content: "FUGUE Orchestratorに接続しました",
-        timestamp: new Date(),
-      });
-    },
+    // Connection status is shown in the header — no chat message needed
   });
 
   const handleSend = useCallback(
@@ -223,18 +211,34 @@ function ChatContent() {
     [isConnected, activeConversation, createConversation, addMessage, sendChat]
   );
 
-  const hasUserMessages = messages.some((m: Message) => m.type !== "system");
+  // Filter out system connection messages — they clutter chat
+  const visibleMessages = useMemo(
+    () => messages.filter((m: Message) => {
+      if (m.type !== "system") return true;
+      // Hide connection/reconnect spam
+      if (m.content.includes("接続しました") || m.content.includes("Connected to FUGUE")) return false;
+      return true;
+    }),
+    [messages]
+  );
+
+  const visibleCount = visibleMessages.length;
+  useEffect(() => {
+    if (visibleCount > 0) scrollToBottom();
+  }, [visibleCount, scrollToBottom]);
+
+  const hasUserMessages = visibleMessages.some((m: Message) => m.type !== "system");
 
   // Show typing indicator when the last user message is pending/delegating
   const isWaitingForResponse = useMemo(() => {
-    const lastUserMsg = [...messages]
+    const lastUserMsg = [...visibleMessages]
       .reverse()
       .find((m) => m.type === "user");
     if (!lastUserMsg) return false;
     return (
       lastUserMsg.status === "pending" || lastUserMsg.status === "delegating"
     );
-  }, [messages]);
+  }, [visibleMessages]);
 
   return (
     <div className="flex h-screen bg-[var(--background)] overflow-hidden">
@@ -324,7 +328,7 @@ function ChatContent() {
               />
             ) : (
               <div className="space-y-1 py-4">
-                {messages.map((message: Message) => (
+                {visibleMessages.map((message: Message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
                 {isWaitingForResponse && <TypingIndicator />}
