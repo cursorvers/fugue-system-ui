@@ -21,7 +21,6 @@ interface SupabaseAgent {
   readonly status: string;
   readonly tasks_count: number;
   readonly metadata: Record<string, unknown> | null;
-  readonly created_at: string;
   readonly updated_at: string;
 }
 
