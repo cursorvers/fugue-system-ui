@@ -5,12 +5,11 @@ import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ProjectTabs } from "@/components/chat/ProjectTabs";
-import { ConversationTabs } from "@/components/chat/ConversationTabs";
 import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { WelcomeScreen } from "@/components/chat/WelcomeScreen";
 import { AgentStatusPanel, AgentStatusDrawer } from "@/components/chat/AgentStatusPanel";
-import { useConversation } from "@/contexts/ConversationContext";
+import { useProject } from "@/contexts/ProjectContext";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import type { Message } from "@/types/chat";
@@ -26,14 +25,10 @@ export default function ChatPage() {
 }
 
 function ChatContent() {
-  const {
-    activeConversation,
-    createConversation,
-    startNewConversation,
-  } = useConversation();
-
-  const conversationId = activeConversation?.id ?? "";
-  const { messages, addMessage, updateMessage } =
+  const { activeProject } = useProject();
+  // Each project has one chat — project ID is the conversation key
+  const conversationId = activeProject?.id ?? "default";
+  const { messages, addMessage, updateMessage, clearHistory } =
     useChatHistory(conversationId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,8 +47,6 @@ function ChatContent() {
 
     const { scrollHeight, scrollTop, clientHeight } = container;
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-
-    // Show button if scrolled up more than 100px from bottom
     setShowScrollButton(distanceFromBottom > 100);
   }, []);
 
@@ -166,7 +159,6 @@ function ChatContent() {
     maxReconnectAttempts: 3,
     reconnectInterval: 5000,
     onMessage: handleWebSocketMessage,
-    // Connection status is shown in the header — no chat message needed
   });
 
   const handleSend = useCallback(
@@ -182,43 +174,31 @@ function ChatContent() {
         return;
       }
 
-      const msg: Message = {
+      addMessage({
         id: `msg-${Date.now()}`,
         type: "user",
         content: text,
         timestamp: new Date(),
         status: "pending",
-      };
-
-      if (!activeConversation) {
-        // Create conversation + pre-seed localStorage so the message
-        // survives the React re-render with new conversationId
-        const newConv = createConversation(text);
-        try {
-          localStorage.setItem(
-            `fugue-chat-${newConv.id}`,
-            JSON.stringify([msg])
-          );
-        } catch {
-          // ignore storage errors
-        }
-      } else {
-        addMessage(msg);
-      }
+      });
 
       sendChat(text);
     },
-    [isConnected, activeConversation, createConversation, addMessage, sendChat]
+    [isConnected, addMessage, sendChat]
   );
 
-  // Filter out system connection messages — they clutter chat
+  // Filter out connection spam from old localStorage data
   const visibleMessages = useMemo(
-    () => messages.filter((m: Message) => {
-      if (m.type !== "system") return true;
-      // Hide connection/reconnect spam
-      if (m.content.includes("接続しました") || m.content.includes("Connected to FUGUE")) return false;
-      return true;
-    }),
+    () =>
+      messages.filter((m: Message) => {
+        if (m.type !== "system") return true;
+        if (
+          m.content.includes("接続しました") ||
+          m.content.includes("Connected to FUGUE")
+        )
+          return false;
+        return true;
+      }),
     [messages]
   );
 
@@ -227,9 +207,10 @@ function ChatContent() {
     if (visibleCount > 0) scrollToBottom();
   }, [visibleCount, scrollToBottom]);
 
-  const hasUserMessages = visibleMessages.some((m: Message) => m.type !== "system");
+  const hasUserMessages = visibleMessages.some(
+    (m: Message) => m.type !== "system"
+  );
 
-  // Show typing indicator when the last user message is pending/delegating
   const isWaitingForResponse = useMemo(() => {
     const lastUserMsg = [...visibleMessages]
       .reverse()
@@ -250,38 +231,35 @@ function ChatContent() {
         <MobileNav activePage="chat" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 lg:px-8 pt-4 lg:pt-8 pb-2 lg:pb-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-primary font-semibold text-[var(--foreground)]">
-                チャット
-              </h1>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    isConnected
-                      ? "bg-[var(--color-success-foreground)]"
-                      : isConnecting
-                        ? "bg-[var(--color-warning-foreground)] pulse-live"
-                        : "bg-[var(--color-error-foreground)]"
-                  }`}
-                />
-                <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-                  {isConnected
-                    ? "接続済み"
+        <div className="flex items-center justify-between px-4 lg:px-8 pt-4 lg:pt-6 pb-2 lg:pb-3">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-primary font-semibold text-[var(--foreground)]">
+              Chat
+            </h1>
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isConnected
+                    ? "bg-[var(--color-success-foreground)]"
                     : isConnecting
-                      ? "接続中..."
-                      : error || "切断"}
-                </span>
-              </div>
+                      ? "bg-[var(--color-warning-foreground)] pulse-live"
+                      : "bg-[var(--color-error-foreground)]"
+                }`}
+              />
+              <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
+                {isConnected
+                  ? "Connected"
+                  : isConnecting
+                    ? "Connecting..."
+                    : error || "Disconnected"}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Status panel toggle — mobile: drawer, desktop: side panel */}
+            {/* Agent status panel toggle */}
             <button
               type="button"
               onClick={() => {
-                // xl+ → toggle side panel, below → drawer
                 if (window.innerWidth >= 1280) {
                   setShowStatusPanel((prev) => !prev);
                 } else {
@@ -297,25 +275,23 @@ function ChatContent() {
             >
               <span className="material-symbols-sharp text-[18px]">monitoring</span>
             </button>
+            {/* Clear chat */}
             <button
-              onClick={startNewConversation}
-              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
+              type="button"
+              onClick={clearHistory}
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
+              aria-label="Clear chat"
             >
-              <span className="material-symbols-sharp text-[14px]">add</span>
-              新規チャット
+              <span className="material-symbols-sharp text-[18px]">delete_sweep</span>
             </button>
           </div>
         </div>
 
-        {/* Project tabs — which project is active */}
+        {/* Project tabs — one chat per project */}
         <ProjectTabs />
 
-        {/* Conversation tabs — within-project conversations */}
-        <ConversationTabs />
-
-        {/* Chat area */}
+        {/* Chat area — single window per project, no conversation tabs */}
         <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-8 pb-4 lg:pb-6 relative">
-          {/* Messages */}
           <div
             ref={messagesContainerRef}
             onScroll={handleScroll}
@@ -337,20 +313,19 @@ function ChatContent() {
             )}
           </div>
 
-          {/* Scroll to bottom button */}
+          {/* Scroll to bottom */}
           <button
             onClick={scrollToBottom}
             className={`absolute bottom-20 right-6 flex items-center justify-center min-w-[44px] min-h-[44px] w-[44px] h-[44px] rounded-full bg-[var(--card)] border border-[var(--border)] shadow-md transition-opacity ${
               showScrollButton ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
-            aria-label="最下部へスクロール"
+            aria-label="Scroll to bottom"
           >
             <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">
               keyboard_arrow_down
             </span>
           </button>
 
-          {/* Input */}
           <ChatInput isConnected={isConnected} onSend={handleSend} />
         </div>
       </main>
