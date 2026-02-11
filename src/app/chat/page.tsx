@@ -9,6 +9,7 @@ import { ConversationTabs } from "@/components/chat/ConversationTabs";
 import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { WelcomeScreen } from "@/components/chat/WelcomeScreen";
+import { AgentStatusPanel, AgentStatusDrawer } from "@/components/chat/AgentStatusPanel";
 import { useConversation } from "@/contexts/ConversationContext";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
@@ -38,6 +39,8 @@ function ChatContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showStatusPanel, setShowStatusPanel] = useState(false);
+  const [showStatusDrawer, setShowStatusDrawer] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -269,13 +272,35 @@ function ChatContent() {
               </div>
             </div>
           </div>
-          <button
-            onClick={startNewConversation}
-            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
-          >
-            <span className="material-symbols-sharp text-[14px]">add</span>
-            新規チャット
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Status panel toggle — mobile: drawer, desktop: side panel */}
+            <button
+              type="button"
+              onClick={() => {
+                // xl+ → toggle side panel, below → drawer
+                if (window.innerWidth >= 1280) {
+                  setShowStatusPanel((prev) => !prev);
+                } else {
+                  setShowStatusDrawer(true);
+                }
+              }}
+              className={`flex items-center justify-center min-w-[44px] min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] transition-colors ${
+                showStatusPanel
+                  ? "bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
+              }`}
+              aria-label="Agent status"
+            >
+              <span className="material-symbols-sharp text-[18px]">monitoring</span>
+            </button>
+            <button
+              onClick={startNewConversation}
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
+            >
+              <span className="material-symbols-sharp text-[14px]">add</span>
+              新規チャット
+            </button>
+          </div>
         </div>
 
         {/* Project tabs — which project is active */}
@@ -325,6 +350,20 @@ function ChatContent() {
           <ChatInput isConnected={isConnected} onSend={handleSend} />
         </div>
       </main>
+
+      {/* Desktop: side panel (xl+) */}
+      <div className="hidden xl:block">
+        <AgentStatusPanel
+          isOpen={showStatusPanel}
+          onClose={() => setShowStatusPanel(false)}
+        />
+      </div>
+
+      {/* Mobile/tablet: drawer overlay */}
+      <AgentStatusDrawer
+        isOpen={showStatusDrawer}
+        onClose={() => setShowStatusDrawer(false)}
+      />
     </div>
   );
 }

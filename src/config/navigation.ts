@@ -12,19 +12,19 @@ export interface SidebarSection {
 // SSOT: Single navigation definition for Sidebar + MobileNav
 export const navigationSections: SidebarSection[] = [
   {
-    title: "オーケストレーター",
+    title: "Orchestrator",
     items: [
-      { icon: "dashboard", label: "概要", href: "/" },
-      { icon: "work", label: "ワーク", href: "/work" },
-      { icon: "play_circle", label: "実行履歴", href: "/runs" },
-      { icon: "chat", label: "チャット", href: "/chat" },
+      { icon: "dashboard", label: "Overview", href: "/" },
+      { icon: "work", label: "Work", href: "/work" },
+      { icon: "play_circle", label: "Runs", href: "/runs" },
+      { icon: "chat", label: "Chat", href: "/chat" },
       { icon: "commit", label: "Git", href: "/git" },
     ],
   },
   {
-    title: "システム",
+    title: "System",
     items: [
-      { icon: "settings", label: "設定", href: "/settings" },
+      { icon: "settings", label: "Settings", href: "/settings" },
     ],
   },
 ];
