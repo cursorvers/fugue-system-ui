@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProjectTabs } from "@/components/chat/ProjectTabs";
 import { ConversationTabs } from "@/components/chat/ConversationTabs";
 import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble";
 import { ChatInput } from "@/components/chat/ChatInput";
@@ -277,7 +278,10 @@ function ChatContent() {
           </button>
         </div>
 
-        {/* Conversation tabs */}
+        {/* Project tabs — which project is active */}
+        <ProjectTabs />
+
+        {/* Conversation tabs — within-project conversations */}
         <ConversationTabs />
 
         {/* Chat area */}
