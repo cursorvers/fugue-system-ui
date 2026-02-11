@@ -130,8 +130,8 @@ function ChatContent() {
               type: "orchestrator",
               content:
                 status === "completed"
-                  ? "Task completed successfully."
-                  : "Task failed.",
+                  ? "タスクが完了しました"
+                  : "タスクが失敗しました",
               timestamp: new Date(),
               status: status === "completed" ? "completed" : "error",
               details: logs ? [logs] : undefined,
@@ -144,7 +144,7 @@ function ChatContent() {
           const errorMsg =
             (wsMessage.message as string) ||
             (wsMessage.payload as { message?: string })?.message ||
-            "An error occurred";
+            "エラーが発生しました";
           addMessage({
             id: `error-${Date.now()}`,
             type: "system",
@@ -171,7 +171,7 @@ function ChatContent() {
       addMessage({
         id: `sys-connected-${Date.now()}`,
         type: "system",
-        content: "Connected to FUGUE Orchestrator",
+        content: "FUGUE Orchestratorに接続しました",
         timestamp: new Date(),
       });
     },
@@ -183,7 +183,7 @@ function ChatContent() {
         addMessage({
           id: `error-${Date.now()}`,
           type: "system",
-          content: "Not connected to server. Please wait...",
+          content: "サーバーに未接続です。お待ちください...",
           timestamp: new Date(),
           status: "error",
         });
@@ -260,10 +260,10 @@ function ChatContent() {
                 />
                 <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
                   {isConnected
-                    ? "Connected"
+                    ? "接続済み"
                     : isConnecting
-                      ? "Connecting..."
-                      : error || "Disconnected"}
+                      ? "接続中..."
+                      : error || "切断"}
                 </span>
               </div>
             </div>
@@ -273,7 +273,7 @@ function ChatContent() {
             className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[12px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
           >
             <span className="material-symbols-sharp text-[14px]">add</span>
-            New Chat
+            新規チャット
           </button>
         </div>
 

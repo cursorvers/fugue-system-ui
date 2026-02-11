@@ -29,7 +29,7 @@ export function ConversationTabs() {
         ref={scrollRef}
         className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1 min-w-0"
         role="tablist"
-        aria-label="Conversations"
+        aria-label="会話一覧"
       >
         {conversations.map((conv) => {
           const isActive = conv.id === activeConversation?.id;
@@ -72,7 +72,7 @@ export function ConversationTabs() {
       <button
         onClick={handleNewChat}
         className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-[var(--radius-m)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors flex-shrink-0"
-        aria-label="New conversation"
+        aria-label="新規会話"
       >
         <span className="material-symbols-sharp text-[16px]">add</span>
       </button>

@@ -50,7 +50,7 @@ export function ChatInput({ isConnected, onSend }: ChatInputProps) {
             handleInput();
           }}
           onKeyDown={handleKeyDown}
-          placeholder={isConnected ? "Ask anything..." : "Connecting..."}
+          placeholder={isConnected ? "何でも聞いてください..." : "接続中..."}
           disabled={!isConnected}
           rows={1}
           className={cn(

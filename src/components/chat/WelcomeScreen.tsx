@@ -12,20 +12,20 @@ const SUGGESTIONS: readonly {
   readonly prompt: string;
 }[] = [
   {
-    label: "Deploy status",
-    prompt: "Show the current deployment status for all services",
+    label: "デプロイ状況",
+    prompt: "全サービスのデプロイ状況を表示して",
   },
   {
-    label: "Run diagnostics",
-    prompt: "Run system diagnostics and report any issues",
+    label: "診断を実行",
+    prompt: "システム診断を実行して問題を報告して",
   },
   {
-    label: "Review latest PR",
-    prompt: "Review the latest pull request and summarize changes",
+    label: "最新PRレビュー",
+    prompt: "最新のPull Requestをレビューして変更を要約して",
   },
   {
-    label: "Agent health",
-    prompt: "Check the health status of all active agents",
+    label: "エージェント状態",
+    prompt: "稼働中の全エージェントの状態を確認して",
   },
 ];
 
@@ -47,8 +47,7 @@ export function WelcomeScreen({
         FUGUE Orchestrator
       </h2>
       <p className="text-[13px] font-primary text-[var(--muted-foreground)] text-center max-w-[280px] mb-6">
-        Ask anything in natural language. Tasks are automatically routed to the
-        right agent.
+        自然言語で何でも聞いてください。タスクは自動的に適切なエージェントにルーティングされます。
       </p>
 
       {/* Connection status */}
@@ -62,7 +61,7 @@ export function WelcomeScreen({
           )}
         />
         <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-          {isConnected ? "Ready" : "Connecting..."}
+          {isConnected ? "接続済み" : "接続中..."}
         </span>
       </div>
 
