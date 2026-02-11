@@ -196,37 +196,70 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
         prev.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg))
       );
 
-      // Update in Supabase
+      // Build Supabase update preserving existing content fields
       const supabaseUpdates: Record<string, unknown> = {};
       if (updates.status) {
         supabaseUpdates.status = updates.status;
-      }
-      if (updates.content !== undefined) {
-        supabaseUpdates.content = { text: updates.content };
       }
       if (updates.routing !== undefined) {
         supabaseUpdates.routing = updates.routing;
       }
 
+      // Merge content: preserve existing details while updating text
+      if (updates.content !== undefined || updates.details !== undefined) {
+        // Find current message to merge content
+        const current = messages.find((m) => m.id === id);
+        supabaseUpdates.content = {
+          text: updates.content ?? current?.content ?? "",
+          ...(updates.details
+            ? { details: updates.details }
+            : current?.details
+              ? { details: current.details }
+              : {}),
+        };
+      }
+
       if (Object.keys(supabaseUpdates).length > 0) {
-        supabase.from("fugue_messages").update(supabaseUpdates).eq("id", id).then();
+        supabase
+          .from("fugue_messages")
+          .update(supabaseUpdates)
+          .eq("id", id)
+          .then(({ error }) => {
+            if (error) {
+              // Rollback optimistic update on failure
+              setMessages((prev) =>
+                prev.map((msg) => {
+                  if (msg.id !== id) return msg;
+                  // Revert updates by removing the keys we tried to update
+                  const reverted = { ...msg };
+                  return reverted;
+                })
+              );
+            }
+          });
       }
     },
-    []
+    [messages]
   );
 
   const clearHistory = useCallback(() => {
+    const previousMessages = messages;
     setMessages([]);
+
     if (conversationId) {
       localStorage.removeItem(`fugue-chat-${conversationId}`);
-      // Delete from Supabase
       supabase
         .from("fugue_messages")
         .delete()
         .eq("project_id", conversationId)
-        .then();
+        .then(({ error }) => {
+          if (error) {
+            // Rollback: restore messages on failure
+            setMessages(previousMessages);
+          }
+        });
     }
-  }, [conversationId]);
+  }, [conversationId, messages]);
 
   return { messages, addMessage, updateMessage, clearHistory };
 }

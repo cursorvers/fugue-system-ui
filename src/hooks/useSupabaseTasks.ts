@@ -42,6 +42,8 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setError(null);
 
     async function fetchTasks() {
       let query = supabase
@@ -69,18 +71,20 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
 
     fetchTasks();
 
-    // Realtime subscription
+    // Realtime subscription with project filter
+    const realtimeFilter = projectId
+      ? { event: "*" as const, schema: "public", table: "fugue_tasks", filter: `project_id=eq.${projectId}` }
+      : { event: "*" as const, schema: "public", table: "fugue_tasks" };
+
     const channel = supabase
-      .channel("fugue_tasks_changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "fugue_tasks" },
-        (payload) => {
+      .channel(`fugue_tasks_${projectId ?? "all"}`)
+      .on("postgres_changes", realtimeFilter, (payload) => {
           if (payload.eventType === "INSERT") {
             const newTask = toTask(payload.new as SupabaseTask);
-            if (!projectId || newTask.id.includes(projectId)) {
-              setTasks((prev) => [newTask, ...prev]);
-            }
+            setTasks((prev) => {
+              if (prev.some((t) => t.id === newTask.id)) return prev;
+              return [newTask, ...prev];
+            });
           } else if (payload.eventType === "UPDATE") {
             const updated = toTask(payload.new as SupabaseTask);
             setTasks((prev) =>
