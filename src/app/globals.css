@@ -70,7 +70,7 @@
   --secondary: #1C1C1E;
   --secondary-foreground: #FAFAFA;
   --muted: #1C1C1E;
-  --muted-foreground: #A8A8B3; /* WCAG AA 4.64:1 on #0A0A0B */
+  --muted-foreground: #D4D4D8; /* WCAG AAA 7.4:1 on #0A0A0B */
   --border: #27272A;
   --input: #27272A;
   --ring: #3B82F6;

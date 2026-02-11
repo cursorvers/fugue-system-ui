@@ -327,7 +327,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             className={cn(
               "text-[11px] font-secondary",
               isUser
-                ? "text-[var(--primary-foreground)]/60"
+                ? "text-[var(--primary-foreground)]/80"
                 : "text-[var(--muted-foreground)]"
             )}
           >

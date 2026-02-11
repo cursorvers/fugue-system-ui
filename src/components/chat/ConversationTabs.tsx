@@ -18,6 +18,11 @@ export function ConversationTabs() {
     startNewConversation();
   }, [startNewConversation]);
 
+  // Hide tab bar when fewer than 2 conversations
+  if (conversations.length < 2) {
+    return null;
+  }
+
   return (
     <div className="flex items-center gap-1 px-4 lg:px-8 pb-2 overflow-hidden">
       <div
@@ -63,7 +68,7 @@ export function ConversationTabs() {
         })}
       </div>
 
-      {/* New conversation */}
+      {/* New conversation — only shown alongside existing tabs */}
       <button
         onClick={handleNewChat}
         className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-[var(--radius-m)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors flex-shrink-0"
