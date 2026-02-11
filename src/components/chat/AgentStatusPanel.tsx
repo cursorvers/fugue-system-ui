@@ -20,6 +20,20 @@ const statusIcon: Record<AgentStatus, string> = {
   error: "error",
 };
 
+// Skeleton row for loading state (CLS prevention)
+function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-2.5 px-3 py-2.5 animate-pulse">
+      <div className="w-7 h-7 rounded-[var(--radius-s)] bg-[var(--muted)]" />
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="h-3 w-20 rounded bg-[var(--muted)]" />
+        <div className="h-2.5 w-14 rounded bg-[var(--muted)]" />
+      </div>
+      <div className="h-4 w-12 rounded-[var(--radius-pill)] bg-[var(--muted)]" />
+    </div>
+  );
+}
+
 interface AgentStatusPanelProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
@@ -96,18 +110,17 @@ export function AgentStatusPanel({ isOpen, onClose }: AgentStatusPanelProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" aria-live="polite" aria-relevant="additions text">
         {section === "agents" ? (
           <div className="divide-y divide-[var(--border)]">
             {agentsLoading ? (
-              <div className="px-3 py-6 text-center">
-                <span className="material-symbols-sharp text-[24px] text-[var(--muted-foreground)] animate-spin">
-                  progress_activity
-                </span>
-                <p className="text-[12px] font-primary text-[var(--muted-foreground)] mt-1">
-                  Loading agents...
-                </p>
-              </div>
+              <>
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+              </>
             ) : agents.length === 0 ? (
               <div className="px-3 py-6 text-center">
                 <span className="material-symbols-sharp text-[24px] text-[var(--muted-foreground)]">

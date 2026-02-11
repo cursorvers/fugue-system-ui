@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Task, TaskStatus, TaskPriority } from "@/types";
+import { TaskSchema, type Task, type TaskStatus, type TaskPriority } from "@/types";
 
 interface SupabaseTask {
   readonly id: string;
@@ -16,8 +16,8 @@ interface SupabaseTask {
   readonly updated_at: string;
 }
 
-function toTask(row: SupabaseTask): Task {
-  return {
+function toTask(row: SupabaseTask): Task | null {
+  const candidate = {
     id: row.id,
     title: row.title,
     status: row.status as TaskStatus,
@@ -27,6 +27,8 @@ function toTask(row: SupabaseTask): Task {
     updatedAt: row.updated_at,
     description: row.description ?? undefined,
   };
+  const result = TaskSchema.safeParse(candidate);
+  return result.success ? result.data : null;
 }
 
 interface UseSupabaseTasksReturn {
@@ -65,7 +67,10 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
         return;
       }
 
-      setTasks((data as readonly SupabaseTask[]).map(toTask));
+      const parsed = (data as readonly SupabaseTask[])
+        .map(toTask)
+        .filter((t): t is Task => t !== null);
+      setTasks(parsed);
       setLoading(false);
     }
 
@@ -81,15 +86,19 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
       .on("postgres_changes", realtimeFilter, (payload) => {
           if (payload.eventType === "INSERT") {
             const newTask = toTask(payload.new as SupabaseTask);
-            setTasks((prev) => {
-              if (prev.some((t) => t.id === newTask.id)) return prev;
-              return [newTask, ...prev];
-            });
+            if (newTask) {
+              setTasks((prev) => {
+                if (prev.some((t) => t.id === newTask.id)) return prev;
+                return [newTask, ...prev];
+              });
+            }
           } else if (payload.eventType === "UPDATE") {
             const updated = toTask(payload.new as SupabaseTask);
-            setTasks((prev) =>
-              prev.map((t) => (t.id === updated.id ? updated : t))
-            );
+            if (updated) {
+              setTasks((prev) =>
+                prev.map((t) => (t.id === updated.id ? updated : t))
+              );
+            }
           } else if (payload.eventType === "DELETE") {
             const deletedId = (payload.old as { id: string }).id;
             setTasks((prev) => prev.filter((t) => t.id !== deletedId));

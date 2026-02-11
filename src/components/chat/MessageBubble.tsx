@@ -272,10 +272,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     >
       <div
         className={cn(
-          "max-w-[85%] lg:max-w-[70%] rounded-[var(--radius-l)] px-3.5 py-2.5",
+          "max-w-[85%] lg:max-w-[70%] rounded-[var(--radius-l)] px-3.5 py-2.5 transition-opacity",
           isUser
             ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-            : "bg-[var(--card)] border border-[var(--border)]"
+            : "bg-[var(--card)] border border-[var(--border)]",
+          isUser && status === "pending" && "opacity-70"
         )}
       >
         {/* Routing badge */}

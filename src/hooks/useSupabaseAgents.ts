@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Agent, AgentStatus, AgentRole } from "@/types";
+import { AgentSchema, type Agent, type AgentStatus, type AgentRole } from "@/types";
 
 interface SupabaseAgent {
   readonly id: string;
@@ -15,9 +15,9 @@ interface SupabaseAgent {
   readonly updated_at: string;
 }
 
-function toAgent(row: SupabaseAgent): Agent {
+function toAgent(row: SupabaseAgent): Agent | null {
   const meta = row.metadata ?? {};
-  return {
+  const candidate = {
     id: row.id,
     name: row.name,
     role: row.role as AgentRole,
@@ -29,6 +29,8 @@ function toAgent(row: SupabaseAgent): Agent {
       ? (meta.provider as Agent["provider"])
       : undefined,
   };
+  const result = AgentSchema.safeParse(candidate);
+  return result.success ? result.data : null;
 }
 
 interface UseSupabaseAgentsReturn {
@@ -59,7 +61,10 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
         return;
       }
 
-      setAgents((data as readonly SupabaseAgent[]).map(toAgent));
+      const parsed = (data as readonly SupabaseAgent[])
+        .map(toAgent)
+        .filter((a): a is Agent => a !== null);
+      setAgents(parsed);
       setLoading(false);
     }
 
@@ -74,12 +79,16 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
         (payload) => {
           if (payload.eventType === "INSERT") {
             const newAgent = toAgent(payload.new as SupabaseAgent);
-            setAgents((prev) => [...prev, newAgent]);
+            if (newAgent) {
+              setAgents((prev) => [...prev, newAgent]);
+            }
           } else if (payload.eventType === "UPDATE") {
             const updated = toAgent(payload.new as SupabaseAgent);
-            setAgents((prev) =>
-              prev.map((a) => (a.id === updated.id ? updated : a))
-            );
+            if (updated) {
+              setAgents((prev) =>
+                prev.map((a) => (a.id === updated.id ? updated : a))
+              );
+            }
           } else if (payload.eventType === "DELETE") {
             const deletedId = (payload.old as { id: string }).id;
             setAgents((prev) => prev.filter((a) => a.id !== deletedId));
