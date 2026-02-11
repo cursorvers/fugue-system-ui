@@ -33,7 +33,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
       {/* Mobile Header — minimal */}
       <header
         className={cn(
-          "lg:hidden flex items-center justify-between px-4 h-12 border-b border-[var(--border)] bg-[var(--background)]",
+          "md:hidden flex items-center justify-between px-4 h-12 border-b border-[var(--border)] bg-[var(--background)]",
           className
         )}
       >
@@ -60,7 +60,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
       {/* Overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/40 z-40"
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -68,7 +68,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
       {/* Slide-out Menu */}
       <aside
         className={cn(
-          "lg:hidden fixed top-0 left-0 h-full w-[260px] max-w-[85vw] bg-[var(--card)] border-r border-[var(--border)] z-50 transform transition-transform duration-200 ease-out shadow-[var(--shadow-l)]",
+          "md:hidden fixed top-0 left-0 h-full w-[260px] max-w-[85vw] bg-[var(--card)] border-r border-[var(--border)] z-50 transform transition-transform duration-200 ease-out shadow-[var(--shadow-l)]",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

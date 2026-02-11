@@ -1,3 +1,6 @@
+// @deprecated Use useAgents() from @/contexts/AgentsContext instead.
+// This hook creates a separate Realtime subscription per mount point.
+// Kept temporarily for backward compatibility — will be removed.
 "use client";
 
 import { useState, useEffect } from "react";

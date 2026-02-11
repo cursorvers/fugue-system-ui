@@ -1,78 +1,133 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useAgents } from "@/contexts/AgentsContext";
+import { useContextualSuggestions } from "@/hooks/useContextualSuggestions";
+import type { AgentStatus } from "@/types";
 
 interface WelcomeScreenProps {
   readonly isConnected: boolean;
   readonly onSendSuggestion: (text: string) => void;
 }
 
-const SUGGESTIONS: readonly {
-  readonly icon: string;
-  readonly label: string;
-  readonly prompt: string;
-}[] = [
-  {
-    icon: "task_alt",
-    label: "タスク状況",
-    prompt: "現在のタスク一覧と進捗を表示して",
-  },
-  {
-    icon: "commit",
-    label: "Git変更確認",
-    prompt: "各リポジトリの未コミット変更とブランチ状態を確認して",
-  },
-  {
-    icon: "monitoring",
-    label: "稼働状態",
-    prompt: "全プロバイダーの応答速度とエラー率を表示して",
-  },
-  {
-    icon: "notification_important",
-    label: "アラート確認",
-    prompt: "未対応のアラートを表示して",
-  },
-];
+const statusColor: Record<AgentStatus, string> = {
+  active: "bg-[var(--color-success-foreground)]",
+  idle: "bg-[var(--color-warning-foreground)]",
+  offline: "bg-[var(--muted-foreground)]",
+  error: "bg-[var(--color-error-foreground)]",
+};
 
 export function WelcomeScreen({
   isConnected,
   onSendSuggestion,
 }: WelcomeScreenProps) {
+  const { agents, activeAgents, connectionState } = useAgents();
+  const suggestions = useContextualSuggestions({ agents, isConnected });
+
+  const idleCount = agents.filter((a) => a.status === "idle").length;
+  const errorCount = agents.filter((a) => a.status === "error").length;
+  const offlineCount = agents.filter((a) => a.status === "offline").length;
+
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 py-8">
-      {/* Icon */}
-      <div className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-l)] bg-[var(--secondary)] mb-4">
+    <div className="flex flex-col items-center justify-center min-h-full px-4 py-8">
+      {/* Orchestrator identity */}
+      <div className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-l)] bg-[var(--secondary)] mb-3">
         <span className="material-symbols-sharp text-[24px] text-[var(--primary)]">
-          terminal
+          hub
         </span>
       </div>
 
-      {/* Title */}
       <h2 className="text-[16px] font-primary font-semibold text-[var(--foreground)] mb-1">
         FUGUE Orchestrator
       </h2>
-      <p className="text-[13px] font-primary text-[var(--muted-foreground)] text-center max-w-[280px] mb-6">
-        自然言語で何でも聞いてください。タスクは自動的に適切なエージェントにルーティングされます。
+      <p className="text-[12px] font-primary text-[var(--muted-foreground)] text-center max-w-[300px] mb-5">
+        Multi-agent orchestration cockpit. Monitor, coordinate, and direct your AI fleet.
       </p>
 
-      {/* Connection status */}
-      <div className="flex items-center gap-1.5 mb-6">
-        <span
-          className={cn(
-            "w-2 h-2 rounded-full",
-            isConnected
-              ? "bg-[var(--color-success-foreground)]"
-              : "bg-[var(--color-error-foreground)] animate-pulse"
+      {/* Agent fleet status — the key differentiator from Happy */}
+      {agents.length > 0 && (
+        <div className="flex items-center gap-4 mb-5 px-4 py-2.5 rounded-[var(--radius-m)] bg-[var(--secondary)] border border-[var(--border)]">
+          <div className="flex items-center gap-1.5">
+            <span className={cn("w-2 h-2 rounded-full", statusColor.active)} />
+            <span className="text-[11px] font-secondary text-[var(--foreground)]">
+              {activeAgents.length} active
+            </span>
+          </div>
+          {idleCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className={cn("w-2 h-2 rounded-full", statusColor.idle)} />
+              <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
+                {idleCount} idle
+              </span>
+            </div>
           )}
-        />
-        <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-          {isConnected ? "接続済み" : "接続中..."}
-        </span>
-      </div>
+          {errorCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className={cn("w-2 h-2 rounded-full", statusColor.error)} />
+              <span className="text-[11px] font-secondary text-[var(--color-error-foreground)]">
+                {errorCount} error
+              </span>
+            </div>
+          )}
+          {offlineCount > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className={cn("w-2 h-2 rounded-full", statusColor.offline)} />
+              <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
+                {offlineCount} offline
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                "w-2 h-2 rounded-full",
+                connectionState === "ready" && "bg-[var(--color-success-foreground)]",
+                connectionState === "connecting" && "bg-[var(--color-warning-foreground)] animate-pulse",
+                connectionState === "stale" && "bg-[var(--color-warning-foreground)]",
+                connectionState === "error" && "bg-[var(--color-error-foreground)]"
+              )}
+            />
+            <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
+              {connectionState === "ready"
+                ? "Realtime"
+                : connectionState === "stale"
+                  ? "Stale"
+                  : connectionState === "error"
+                    ? "Error"
+                    : "Connecting"}
+            </span>
+          </div>
+        </div>
+      )}
 
-      {/* Suggestion chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-[340px]">
-        {SUGGESTIONS.map((s) => (
+      {/* Agent fleet mini roster */}
+      {agents.length > 0 && (
+        <div className="flex items-center gap-1 mb-5">
+          {agents.map((agent) => (
+            <div
+              key={agent.id}
+              className={cn(
+                "w-7 h-7 rounded-full bg-[var(--muted)] flex items-center justify-center ring-1.5 transition-all",
+                agent.status === "active"
+                  ? "ring-[var(--color-success-foreground)]"
+                  : agent.status === "idle"
+                    ? "ring-[var(--color-warning-foreground)]"
+                    : "ring-[var(--muted-foreground)]",
+                agent.status === "active" && "pulse-live"
+              )}
+              title={`${agent.name} — ${agent.role} (${agent.status})`}
+            >
+              <span className="text-[10px] font-secondary font-bold text-[var(--foreground)]">
+                {agent.name.charAt(0)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Contextual suggestion chips */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-[360px]">
+        {suggestions.map((s) => (
           <button
             key={s.label}
             onClick={() => onSendSuggestion(s.prompt)}

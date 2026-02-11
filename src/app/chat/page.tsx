@@ -9,7 +9,9 @@ import { MessageBubble, TypingIndicator } from "@/components/chat/MessageBubble"
 import { ChatInput } from "@/components/chat/ChatInput";
 import { WelcomeScreen } from "@/components/chat/WelcomeScreen";
 import { AgentStatusPanel, AgentStatusDrawer } from "@/components/chat/AgentStatusPanel";
+import { AmbientAgentBar } from "@/components/chat/AmbientAgentBar";
 import { useProject } from "@/contexts/ProjectContext";
+import { AgentsProvider } from "@/contexts/AgentsContext";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import type { Message } from "@/types/chat";
@@ -19,7 +21,9 @@ const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "";
 export default function ChatPage() {
   return (
     <ProtectedRoute>
-      <ChatContent />
+      <AgentsProvider>
+        <ChatContent />
+      </AgentsProvider>
     </ProtectedRoute>
   );
 }
@@ -34,7 +38,8 @@ function ChatContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [showStatusPanel, setShowStatusPanel] = useState(false);
+  // Orchestration-first: panel open by default on desktop
+  const [showStatusPanel, setShowStatusPanel] = useState(true);
   const [showStatusDrawer, setShowStatusDrawer] = useState(false);
 
   const scrollToBottom = useCallback(() => {
@@ -86,7 +91,7 @@ function ChatContent() {
             const content = payload.content || payload.message || "";
             if (!content) break;
             addMessage({
-              id: `resp-${Date.now()}`,
+              id: `resp-${crypto.randomUUID()}`,
               type: payload.role === "system" ? "system" : "orchestrator",
               content,
               timestamp: payload.timestamp
@@ -118,7 +123,7 @@ function ChatContent() {
           const logs = wsMessage.logs as string | undefined;
           if (taskId) {
             addMessage({
-              id: `result-${Date.now()}`,
+              id: `result-${crypto.randomUUID()}`,
               type: "orchestrator",
               content:
                 status === "completed"
@@ -138,7 +143,7 @@ function ChatContent() {
             (wsMessage.payload as { message?: string })?.message ||
             "エラーが発生しました";
           addMessage({
-            id: `error-${Date.now()}`,
+            id: `error-${crypto.randomUUID()}`,
             type: "system",
             content: errorMsg,
             timestamp: new Date(),
@@ -165,7 +170,7 @@ function ChatContent() {
     (text: string) => {
       if (!isConnected) {
         addMessage({
-          id: `error-${Date.now()}`,
+          id: `error-${crypto.randomUUID()}`,
           type: "system",
           content: "サーバーに未接続です。お待ちください...",
           timestamp: new Date(),
@@ -175,7 +180,7 @@ function ChatContent() {
       }
 
       addMessage({
-        id: `msg-${Date.now()}`,
+        id: `msg-${crypto.randomUUID()}`,
         type: "user",
         content: text,
         timestamp: new Date(),
@@ -223,7 +228,7 @@ function ChatContent() {
 
   return (
     <div className="flex h-screen bg-[var(--background)] overflow-hidden">
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <Sidebar activePage="chat" />
       </div>
 
@@ -231,7 +236,7 @@ function ChatContent() {
         <MobileNav activePage="chat" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 lg:px-8 pt-4 lg:pt-6 pb-2 lg:pb-3">
+        <div className="flex items-center justify-between px-4 md:px-8 pt-4 md:pt-6 pb-2 md:pb-3">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-primary font-semibold text-[var(--foreground)]">
               Chat
@@ -260,14 +265,14 @@ function ChatContent() {
             <button
               type="button"
               onClick={() => {
-                if (window.innerWidth >= 1280) {
+                if (window.innerWidth >= 1024) {
                   setShowStatusPanel((prev) => !prev);
                 } else {
                   setShowStatusDrawer(true);
                 }
               }}
               className={`flex items-center justify-center min-w-[44px] min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] transition-colors ${
-                showStatusPanel
+                (showStatusPanel && window.innerWidth >= 1024) || showStatusDrawer
                   ? "bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
               }`}
@@ -291,7 +296,7 @@ function ChatContent() {
         <ProjectTabs />
 
         {/* Chat area — single window per project, no conversation tabs */}
-        <div className="flex-1 flex flex-col min-h-0 px-4 lg:px-8 pb-4 lg:pb-6 relative">
+        <div className="flex-1 flex flex-col min-h-0 px-4 md:px-8 pb-4 md:pb-6 relative">
           <div
             ref={messagesContainerRef}
             onScroll={handleScroll}
@@ -326,12 +331,13 @@ function ChatContent() {
             </span>
           </button>
 
+          <AmbientAgentBar />
           <ChatInput isConnected={isConnected} onSend={handleSend} />
         </div>
       </main>
 
-      {/* Desktop: side panel (xl+) */}
-      <div className="hidden xl:block">
+      {/* Desktop: side panel (lg+) */}
+      <div className="hidden lg:block">
         <AgentStatusPanel
           isOpen={showStatusPanel}
           onClose={() => setShowStatusPanel(false)}

@@ -108,9 +108,10 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
         if (shouldReconnect) {
           reconnectAttemptsRef.current++;
           reconnectTimeoutRef.current = setTimeout(connect, reconnectInterval);
-        } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-          setError("Connection failed. Server may require authentication.");
+        } else if (authErrorCodes.includes(event.code)) {
+          setError("Authentication required.");
         }
+        // Max retries exhausted: stay disconnected silently (no error state)
 
         onCloseRef.current?.();
       };
