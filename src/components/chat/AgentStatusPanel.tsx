@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/Badge";
-import { mockAgents } from "@/data/mock-agents";
-import { mockTasks } from "@/data/mock-tasks";
+import { useSupabaseAgents } from "@/hooks/useSupabaseAgents";
+import { useSupabaseTasks } from "@/hooks/useSupabaseTasks";
 import type { AgentStatus } from "@/types";
 
 const statusBadge: Record<AgentStatus, "success" | "warning" | "secondary" | "error"> = {
@@ -20,14 +20,6 @@ const statusIcon: Record<AgentStatus, string> = {
   error: "error",
 };
 
-// Active tasks grouped by assignee
-function useActiveTasks() {
-  const active = mockTasks.filter(
-    (t) => t.status === "in_progress" || t.status === "pending"
-  );
-  return active;
-}
-
 interface AgentStatusPanelProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
@@ -35,9 +27,13 @@ interface AgentStatusPanelProps {
 
 export function AgentStatusPanel({ isOpen, onClose }: AgentStatusPanelProps) {
   const [section, setSection] = useState<"agents" | "tasks">("agents");
-  const activeTasks = useActiveTasks();
+  const { agents, loading: agentsLoading } = useSupabaseAgents();
+  const { tasks } = useSupabaseTasks();
 
-  const activeCount = mockAgents.filter((a) => a.status === "active").length;
+  const activeTasks = tasks.filter(
+    (t) => t.status === "in_progress" || t.status === "pending"
+  );
+  const activeCount = agents.filter((a) => a.status === "active").length;
 
   if (!isOpen) return null;
 
@@ -53,7 +49,7 @@ export function AgentStatusPanel({ isOpen, onClose }: AgentStatusPanelProps) {
             Status
           </span>
           <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-            {activeCount}/{mockAgents.length}
+            {activeCount}/{agents.length}
           </span>
         </div>
         <button
@@ -103,7 +99,26 @@ export function AgentStatusPanel({ isOpen, onClose }: AgentStatusPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {section === "agents" ? (
           <div className="divide-y divide-[var(--border)]">
-            {mockAgents.map((agent) => (
+            {agentsLoading ? (
+              <div className="px-3 py-6 text-center">
+                <span className="material-symbols-sharp text-[24px] text-[var(--muted-foreground)] animate-spin">
+                  progress_activity
+                </span>
+                <p className="text-[12px] font-primary text-[var(--muted-foreground)] mt-1">
+                  Loading agents...
+                </p>
+              </div>
+            ) : agents.length === 0 ? (
+              <div className="px-3 py-6 text-center">
+                <span className="material-symbols-sharp text-[24px] text-[var(--muted-foreground)]">
+                  smart_toy
+                </span>
+                <p className="text-[12px] font-primary text-[var(--muted-foreground)] mt-1">
+                  No agents registered
+                </p>
+              </div>
+            ) : null}
+            {agents.map((agent) => (
               <div
                 key={agent.id}
                 className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-[var(--secondary)] transition-colors"
