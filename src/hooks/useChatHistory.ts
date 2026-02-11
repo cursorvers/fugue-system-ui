@@ -126,9 +126,8 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
         (payload) => {
           const newMsg = toMessage(payload.new as SupabaseMessage);
           setMessages((prev) => {
-            // Avoid duplicates (we may have optimistically added it)
             if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
+            return [...prev, newMsg].slice(-MAX_MESSAGES);
           });
         }
       )
@@ -162,8 +161,8 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
 
   const addMessage = useCallback(
     (msg: Message) => {
-      // Optimistic update
-      setMessages((prev) => [...prev, msg]);
+      // Optimistic update with limit
+      setMessages((prev) => [...prev, msg].slice(-MAX_MESSAGES));
 
       // Persist to Supabase
       const projectId = conversationId || "default";
@@ -192,6 +191,9 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
 
   const updateMessage = useCallback(
     (id: string, updates: Partial<Message>) => {
+      // Snapshot before optimistic update for rollback
+      const snapshot = messages.find((m) => m.id === id);
+
       setMessages((prev) =>
         prev.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg))
       );
@@ -207,14 +209,12 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
 
       // Merge content: preserve existing details while updating text
       if (updates.content !== undefined || updates.details !== undefined) {
-        // Find current message to merge content
-        const current = messages.find((m) => m.id === id);
         supabaseUpdates.content = {
-          text: updates.content ?? current?.content ?? "",
+          text: updates.content ?? snapshot?.content ?? "",
           ...(updates.details
             ? { details: updates.details }
-            : current?.details
-              ? { details: current.details }
+            : snapshot?.details
+              ? { details: snapshot.details }
               : {}),
         };
       }
@@ -225,15 +225,10 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
           .update(supabaseUpdates)
           .eq("id", id)
           .then(({ error }) => {
-            if (error) {
-              // Rollback optimistic update on failure
+            if (error && snapshot) {
+              // Rollback to pre-update snapshot
               setMessages((prev) =>
-                prev.map((msg) => {
-                  if (msg.id !== id) return msg;
-                  // Revert updates by removing the keys we tried to update
-                  const reverted = { ...msg };
-                  return reverted;
-                })
+                prev.map((msg) => (msg.id === id ? snapshot : msg))
               );
             }
           });

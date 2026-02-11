@@ -80,7 +80,10 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
           if (payload.eventType === "INSERT") {
             const newAgent = toAgent(payload.new as SupabaseAgent);
             if (newAgent) {
-              setAgents((prev) => [...prev, newAgent]);
+              setAgents((prev) => {
+                if (prev.some((a) => a.id === newAgent.id)) return prev;
+                return [...prev, newAgent];
+              });
             }
           } else if (payload.eventType === "UPDATE") {
             const updated = toAgent(payload.new as SupabaseAgent);
