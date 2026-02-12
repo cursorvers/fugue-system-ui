@@ -21,6 +21,13 @@ const statusIcon: Record<AgentStatus, string> = {
   error: "error",
 };
 
+const statusLabel: Record<AgentStatus, string> = {
+  active: "稼働中",
+  idle: "待機中",
+  offline: "オフライン",
+  error: "エラー",
+};
+
 // --- E3: Debounced status with minimum display time ---
 const STATUS_DEBOUNCE_MS = 300;
 const STATUS_MIN_DISPLAY_MS = 500;
@@ -116,7 +123,7 @@ function AgentCard({ agent }: AgentCardProps) {
           <span className="material-symbols-sharp text-[10px]">
             {statusIcon[debouncedStatus]}
           </span>
-          {debouncedStatus}
+          {statusLabel[debouncedStatus]}
         </Badge>
 
         {/* Expand chevron */}
@@ -312,7 +319,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
                           variant={task.status === "in_progress" ? "info" : "secondary"}
                           className="text-[9px]"
                         >
-                          {task.status === "in_progress" ? "running" : task.status}
+                          {task.status === "in_progress" ? "実行中" : task.status === "pending" ? "保留中" : task.status}
                         </Badge>
                       </div>
                     </div>

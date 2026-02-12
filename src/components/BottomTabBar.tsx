@@ -13,9 +13,9 @@ interface TabItem {
 
 const TABS: readonly TabItem[] = [
   { icon: "dashboard", activeIcon: "dashboard", label: "概要", href: "/" },
-  { icon: "work", activeIcon: "work", label: "Work", href: "/work" },
-  { icon: "chat", activeIcon: "chat", label: "Chat", href: "/chat" },
-  { icon: "play_circle", activeIcon: "play_circle", label: "Runs", href: "/runs" },
+  { icon: "work", activeIcon: "work", label: "ワーク", href: "/work" },
+  { icon: "chat", activeIcon: "chat", label: "チャット", href: "/chat" },
+  { icon: "play_circle", activeIcon: "play_circle", label: "実行", href: "/runs" },
   { icon: "settings", activeIcon: "settings", label: "設定", href: "/settings" },
 ];
 

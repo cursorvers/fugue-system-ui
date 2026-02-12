@@ -13,23 +13,23 @@ export interface Suggestion {
 const STATIC_SUGGESTIONS: readonly Suggestion[] = [
   {
     icon: "task_alt",
-    label: "Task status",
-    prompt: "Show current task list and progress",
+    label: "タスク状況",
+    prompt: "進行中のタスクと進捗を表示して",
   },
   {
     icon: "commit",
-    label: "Git changes",
-    prompt: "Check uncommitted changes and branch status across repos",
+    label: "Git変更",
+    prompt: "未コミットの変更とブランチ状態を確認して",
   },
   {
     icon: "monitoring",
-    label: "System health",
-    prompt: "Show provider response times and error rates",
+    label: "システム状態",
+    prompt: "プロバイダの応答時間とエラー率を表示して",
   },
   {
     icon: "notification_important",
-    label: "Alerts",
-    prompt: "Show unresolved alerts",
+    label: "アラート",
+    prompt: "未解決のアラートを表示して",
   },
 ];
 
@@ -37,43 +37,43 @@ const STATIC_SUGGESTIONS: readonly Suggestion[] = [
 const ROLE_SUGGESTIONS: Partial<Record<AgentRole, Suggestion>> = {
   architect: {
     icon: "architecture",
-    label: "Design review",
-    prompt: "Review current architecture decisions and pending design tasks",
+    label: "設計レビュー",
+    prompt: "現在のアーキテクチャ判断と保留中の設計タスクをレビューして",
   },
   "code-reviewer": {
     icon: "rate_review",
-    label: "Code review",
-    prompt: "Show pending code reviews and recent review results",
+    label: "コードレビュー",
+    prompt: "保留中のコードレビューと最近のレビュー結果を表示して",
   },
   "security-analyst": {
     icon: "shield",
-    label: "Security scan",
-    prompt: "Run a security check on recent changes",
+    label: "セキュリティ",
+    prompt: "最近の変更に対してセキュリティチェックを実行して",
   },
   "ui-reviewer": {
     icon: "palette",
-    label: "UI review",
-    prompt: "Review recent UI changes and design consistency",
+    label: "UIレビュー",
+    prompt: "最近のUI変更とデザインの一貫性をレビューして",
   },
   designer: {
     icon: "draw",
-    label: "Design status",
-    prompt: "Show current design tasks and Pencil file status",
+    label: "デザイン状況",
+    prompt: "現在のデザインタスクとPencilファイルの状態を表示して",
   },
   analyst: {
     icon: "analytics",
-    label: "Analytics",
-    prompt: "Show recent analysis results and insights",
+    label: "分析",
+    prompt: "最近の分析結果とインサイトを表示して",
   },
   reviewer: {
     icon: "checklist",
-    label: "Review queue",
-    prompt: "Show items waiting for review approval",
+    label: "レビュー待ち",
+    prompt: "レビュー承認待ちの項目を表示して",
   },
   "general-reviewer": {
     icon: "summarize",
-    label: "Summary",
-    prompt: "Summarize today's activity across all agents",
+    label: "サマリー",
+    prompt: "本日の全エージェントの活動を要約して",
   },
 };
 

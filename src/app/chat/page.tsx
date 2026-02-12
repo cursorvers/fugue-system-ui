@@ -19,6 +19,7 @@ import { useChatOrchestration } from "@/hooks/useChatOrchestration";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import { generateMockResponse } from "@/lib/mock-chat-responder";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import type { Message } from "@/types/chat";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "";
@@ -46,6 +47,7 @@ function ChatContent() {
   // Orchestration-first: panel open by default on desktop
   const [showStatusPanel, setShowStatusPanel] = useState(true);
   const [showStatusDrawer, setShowStatusDrawer] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // Execution plan approval flow
   const sendRef = useRef<((msg: WebSocketMessage) => void) | null>(null);
@@ -227,14 +229,14 @@ function ChatContent() {
             <button
               type="button"
               onClick={() => {
-                if (window.innerWidth >= 1024) {
+                if (isDesktop) {
                   setShowStatusPanel((prev) => !prev);
                 } else {
                   setShowStatusDrawer(true);
                 }
               }}
               className={`flex items-center justify-center min-w-[44px] min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] transition-colors ${
-                (showStatusPanel && window.innerWidth >= 1024) || showStatusDrawer
+                (showStatusPanel && isDesktop) || showStatusDrawer
                   ? "bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
               }`}

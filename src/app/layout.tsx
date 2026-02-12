@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { ConversationProvider } from "@/contexts/ConversationContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -47,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`h-full dark ${geist.variable} ${jetbrainsMono.variable}`}>
+    <html lang="ja" className={`h-full dark ${geist.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
@@ -63,15 +64,17 @@ export default function RootLayout({
           }}
         />
         <a href="#main-content" className="skip-to-content">
-          Skip to main content
+          メインコンテンツへ
         </a>
         <ThemeProvider>
           <AuthProvider>
             <ProjectProvider>
               <ConversationProvider>
-                <div id="main-content">
-                  {children}
-                </div>
+                <ErrorBoundary>
+                  <div id="main-content">
+                    {children}
+                  </div>
+                </ErrorBoundary>
               </ConversationProvider>
             </ProjectProvider>
           </AuthProvider>
