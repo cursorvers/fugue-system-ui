@@ -18,6 +18,7 @@ import { useExecutionPlan } from "@/hooks/useExecutionPlan";
 import { useChatOrchestration } from "@/hooks/useChatOrchestration";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { generateMockResponse } from "@/lib/mock-chat-responder";
 import type { Message } from "@/types/chat";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "";
@@ -95,26 +96,33 @@ function ChatContent() {
 
   const handleSend = useCallback(
     (text: string) => {
-      if (!isConnected) {
-        addMessage({
-          id: `error-${crypto.randomUUID()}`,
-          type: "system",
-          content: "サーバーに未接続です。お待ちください...",
-          timestamp: new Date(),
-          status: "error",
-        });
-        return;
-      }
+      const userMsgId = `msg-${crypto.randomUUID()}`;
 
       addMessage({
-        id: `msg-${crypto.randomUUID()}`,
+        id: userMsgId,
         type: "user",
         content: text,
         timestamp: new Date(),
-        status: "pending",
+        status: isConnected ? "pending" : "completed",
       });
 
-      sendChat(text);
+      if (isConnected) {
+        sendChat(text);
+        return;
+      }
+
+      // Demo mode: generate mock response with typing delay
+      setTimeout(() => {
+        const response = generateMockResponse(text);
+        addMessage({
+          id: `mock-${crypto.randomUUID()}`,
+          type: "orchestrator",
+          content: response,
+          timestamp: new Date(),
+          status: "completed",
+          routing: { suggestedAgent: "FUGUE", confidence: 1 },
+        });
+      }, 600);
     },
     [isConnected, addMessage, sendChat]
   );
