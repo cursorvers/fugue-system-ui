@@ -250,7 +250,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   if (type === "system") {
     return (
       <div className="flex justify-center py-1">
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-pill)] bg-[var(--secondary)]">
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-pill)] bg-[var(--secondary)] border border-[var(--border)]">
           <StatusIndicator status={status} />
           <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
             {content}
@@ -275,7 +275,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           "max-w-[85%] lg:max-w-[70%] rounded-[var(--radius-l)] px-3.5 py-2.5 transition-opacity",
           isUser
             ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-            : "bg-[var(--card)] border border-[var(--border)]",
+            : "bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow-s)]",
           isUser && status === "pending" && "opacity-70"
         )}
       >
