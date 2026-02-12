@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+        env:
+          AUTH_SECRET: ci-test-secret-not-real-32-chars
+          AUTH_USERS: '[{"email":"ci@test.dev","password":"ci","name":"CI","role":"viewer"}]'
+
+      - name: Test coverage
+        if: github.event_name == 'pull_request'
+        run: npm run test:coverage
+        env:
+          AUTH_SECRET: ci-test-secret-not-real-32-chars
+          AUTH_USERS: '[{"email":"ci@test.dev","password":"ci","name":"CI","role":"viewer"}]'
+
+      - name: Build
+        run: npm run build
+        env:
+          AUTH_SECRET: ci-test-secret-not-real-32-chars
+          AUTH_USERS: '[{"email":"ci@test.dev","password":"ci","name":"CI","role":"viewer"}]'
+
+      - name: Check bundle size
+        if: github.event_name == 'pull_request'
+        run: |
+          du -sh .next/static/chunks/*.js | sort -rh | head -20
