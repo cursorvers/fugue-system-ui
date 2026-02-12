@@ -103,15 +103,15 @@ function ChatContent() {
         type: "user",
         content: text,
         timestamp: new Date(),
-        status: isConnected ? "pending" : "completed",
+        status: "completed",
       });
 
+      // Always send via WS if connected
       if (isConnected) {
         sendChat(text);
-        return;
       }
 
-      // Demo mode: generate mock response with typing delay
+      // Always generate mock response as fallback/demo
       setTimeout(() => {
         const response = generateMockResponse(text);
         addMessage({
@@ -122,7 +122,7 @@ function ChatContent() {
           status: "completed",
           routing: { suggestedAgent: "FUGUE", confidence: 1 },
         });
-      }, 600);
+      }, 800);
     },
     [isConnected, addMessage, sendChat]
   );
