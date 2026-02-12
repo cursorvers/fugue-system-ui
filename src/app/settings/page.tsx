@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { BottomTabBar } from "@/components/BottomTabBar";
 
 const SETTINGS_ITEMS = [
   {
@@ -35,7 +36,7 @@ const SETTINGS_ITEMS = [
 export default function SettingsPage() {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+      <div className="flex h-screen bg-[var(--background)] overflow-hidden pb-[var(--bottom-tab-offset)] md:pb-0">
         <div className="hidden lg:block">
           <Sidebar activePage="settings" />
         </div>
@@ -79,6 +80,8 @@ export default function SettingsPage() {
             </div>
           </div>
         </main>
+
+        <BottomTabBar />
       </div>
     </ProtectedRoute>
   );

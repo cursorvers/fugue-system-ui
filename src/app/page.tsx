@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { AgentsProvider, useAgents } from "@/contexts/AgentsContext";
 import { FleetHealthIndicator } from "@/components/agent-fleet/FleetHealthIndicator";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useSupabaseRuns } from "@/hooks/useSupabaseRuns";
 import { useAgentGraph } from "@/hooks/useAgentGraph";
@@ -70,7 +71,7 @@ function DashboardContent() {
   const unreadCount = inbox.filter((i) => !i.read).length;
 
   return (
-      <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+      <div className="flex h-screen bg-[var(--background)] overflow-hidden pb-[var(--bottom-tab-offset)] md:pb-0">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <Sidebar activePage="overview" />
@@ -280,6 +281,8 @@ function DashboardContent() {
             </div>
           </div>
         </main>
+
+        <BottomTabBar />
 
         {/* Inbox Drawer */}
         {inboxOpen && (

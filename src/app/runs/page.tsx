@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { useServerData } from "@/hooks/useServerData";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import type { ServerTask } from "@/types";
 
 interface Run {
@@ -134,7 +135,7 @@ export default function RunsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+      <div className="flex h-screen bg-[var(--background)] overflow-hidden pb-[var(--bottom-tab-offset)] md:pb-0">
         <div className="hidden lg:block">
           <Sidebar activePage="runs" />
         </div>
@@ -349,6 +350,8 @@ export default function RunsPage() {
             </aside>
           </div>
         )}
+
+        <BottomTabBar />
       </div>
     </ProtectedRoute>
   );

@@ -37,7 +37,7 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
       {/* Mobile Header — minimal */}
       <header
         className={cn(
-          "md:hidden flex items-center justify-between px-4 h-12 border-b border-[var(--border)] bg-[var(--background)]",
+          "md:hidden flex items-center justify-between px-4 h-12 border-b border-[var(--border)] bg-[var(--background)] pwa-safe-top",
           className
         )}
       >

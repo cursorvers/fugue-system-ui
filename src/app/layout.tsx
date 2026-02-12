@@ -20,6 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const viewport: Viewport = {
   themeColor: "#000000",
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -33,7 +34,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/icon-512.svg",
-    apple: "/icon-192.svg",
+    apple: [
+      { url: "/apple-touch-icon.svg", sizes: "180x180", type: "image/svg+xml" },
+      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+    ],
   },
 };
 
@@ -49,6 +53,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
           rel="stylesheet"
         />
+        {/* iPhone splash screen: solid black background matching theme */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className="h-full antialiased">
         <script

@@ -8,6 +8,7 @@ import { Badge } from "@/components/Badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { useServerData } from "@/hooks/useServerData";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import type { ServerGitRepo } from "@/types";
 
 // ─── Strategy-level branch data ─────────────────────────────────────────────
@@ -101,7 +102,7 @@ export default function GitPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+      <div className="flex h-screen bg-[var(--background)] overflow-hidden pb-[var(--bottom-tab-offset)] md:pb-0">
         <div className="hidden lg:block">
           <Sidebar activePage="git" />
         </div>
@@ -243,6 +244,8 @@ export default function GitPage() {
             </Card>
           </div>
         </main>
+
+        <BottomTabBar />
       </div>
     </ProtectedRoute>
   );

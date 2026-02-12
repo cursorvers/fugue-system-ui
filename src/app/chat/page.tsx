@@ -17,6 +17,7 @@ import { useChatHistory } from "@/hooks/useChatHistory";
 import { useExecutionPlan } from "@/hooks/useExecutionPlan";
 import { useChatOrchestration } from "@/hooks/useChatOrchestration";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import type { Message } from "@/types/chat";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "";
@@ -153,7 +154,7 @@ function ChatContent() {
   }, [visibleMessages]);
 
   return (
-    <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+    <div className="flex h-screen bg-[var(--background)] overflow-hidden pb-[var(--bottom-tab-offset)] md:pb-0">
       <div className="hidden md:block">
         <Sidebar activePage="chat" />
       </div>
@@ -299,6 +300,8 @@ function ChatContent() {
         isOpen={showStatusDrawer}
         onClose={() => setShowStatusDrawer(false)}
       />
+
+      <BottomTabBar />
     </div>
   );
 }
