@@ -12,10 +12,6 @@ on:
         required: true
         type: string
 
-permissions:
-  issues: write
-  contents: read
-
 concurrency:
   group: fugue-task-${{ github.repository }}-${{ github.event.issue.number || github.event.inputs.issue_number || github.run_id }}
   cancel-in-progress: false
@@ -23,8 +19,11 @@ concurrency:
 jobs:
   route:
     uses: cursorvers/fugue-orchestrator/.github/workflows/fugue-task-router.yml@v1
+    permissions:
+      issues: write
+      contents: read
     with:
-      issue_number: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+      issue_number: "${{ format('{0}', github.event.issue.number || github.event.inputs.issue_number) }}"
     secrets:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
