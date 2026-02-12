@@ -106,12 +106,7 @@ function ChatContent() {
         status: "completed",
       });
 
-      // Always send via WS if connected
-      if (isConnected) {
-        sendChat(text);
-      }
-
-      // Always generate mock response as fallback/demo
+      // Mock response (WS chat disabled — status-only connection)
       setTimeout(() => {
         const response = generateMockResponse(text);
         addMessage({
@@ -124,7 +119,7 @@ function ChatContent() {
         });
       }, 800);
     },
-    [isConnected, addMessage, sendChat]
+    [addMessage]
   );
 
   // Filter out connection spam from old localStorage data
