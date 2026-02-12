@@ -48,10 +48,15 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function fetchAgents() {
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase!
         .from("fugue_agents")
         .select("*")
         .order("name");
@@ -74,7 +79,7 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
     fetchAgents();
 
     // Realtime subscription
-    const channel = supabase
+    const channel = supabase!
       .channel("fugue_agents_changes")
       .on(
         "postgres_changes",
@@ -105,7 +110,7 @@ export function useSupabaseAgents(): UseSupabaseAgentsReturn {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      supabase!.removeChannel(channel);
     };
   }, []);
 

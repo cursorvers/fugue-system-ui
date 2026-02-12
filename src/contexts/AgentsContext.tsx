@@ -66,11 +66,18 @@ export function AgentsProvider({ children }: AgentsProviderProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Offline mode: no Supabase client
+    if (!supabase) {
+      setAgents([...mockAgents]);
+      setConnectionState("ready");
+      return;
+    }
+
     let cancelled = false;
 
     // Guarded snapshot fetch (checks cancelled before every setState)
     const fetchSnapshot = async () => {
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError } = await supabase!
         .from("fugue_agents")
         .select("id, name, role, status, tasks_count, metadata, updated_at")
         .order("name");
@@ -104,7 +111,7 @@ export function AgentsProvider({ children }: AgentsProviderProps) {
     fetchSnapshot();
 
     // Single Realtime subscription (E7: dedup)
-    const channel = supabase
+    const channel = supabase!
       .channel("agents_provider_single")
       .on(
         "postgres_changes",
@@ -162,7 +169,7 @@ export function AgentsProvider({ children }: AgentsProviderProps) {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      supabase!.removeChannel(channel);
     };
   }, []);
 

@@ -68,7 +68,7 @@ interface UseChatHistoryReturn {
 
 export function useChatHistory(conversationId: string): UseChatHistoryReturn {
   const [messages, setMessages] = useState<readonly Message[]>([]);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<ReturnType<NonNullable<typeof supabase>["channel"]> | null>(null);
 
   // Load messages from Supabase
   useEffect(() => {
@@ -77,10 +77,26 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
       return;
     }
 
+    if (!supabase) {
+      // Offline: load from localStorage
+      try {
+        const saved = localStorage.getItem(`fugue-chat-${conversationId}`);
+        if (saved) {
+          const parsed = JSON.parse(saved) as readonly Message[];
+          setMessages(
+            parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }))
+          );
+        }
+      } catch {
+        setMessages([]);
+      }
+      return;
+    }
+
     let cancelled = false;
 
     async function fetchMessages() {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from("fugue_messages")
         .select("*")
         .eq("project_id", conversationId)
@@ -113,7 +129,7 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
     fetchMessages();
 
     // Realtime subscription for this project's messages
-    const channel = supabase
+    const channel = supabase!
       .channel(`fugue_messages_${conversationId}`)
       .on(
         "postgres_changes",
@@ -153,7 +169,7 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
     return () => {
       cancelled = true;
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
+        supabase!.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
@@ -164,27 +180,41 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
       // Optimistic update with limit
       setMessages((prev) => [...prev, msg].slice(-MAX_MESSAGES));
 
-      // Persist to Supabase
+      // Persist to Supabase or localStorage
       const projectId = conversationId || "default";
-      supabase
-        .from("fugue_messages")
-        .insert(toSupabaseInsert(msg, projectId))
-        .then(({ error }) => {
-          if (error) {
-            // Fallback: save to localStorage
-            try {
-              const key = `fugue-chat-${projectId}`;
-              const existing = localStorage.getItem(key);
-              const arr = existing ? JSON.parse(existing) : [];
-              localStorage.setItem(
-                key,
-                JSON.stringify([...arr, msg].slice(-MAX_MESSAGES))
-              );
-            } catch {
-              // ignore
+      if (supabase) {
+        supabase
+          .from("fugue_messages")
+          .insert(toSupabaseInsert(msg, projectId))
+          .then(({ error }) => {
+            if (error) {
+              // Fallback: save to localStorage
+              try {
+                const key = `fugue-chat-${projectId}`;
+                const existing = localStorage.getItem(key);
+                const arr = existing ? JSON.parse(existing) : [];
+                localStorage.setItem(
+                  key,
+                  JSON.stringify([...arr, msg].slice(-MAX_MESSAGES))
+                );
+              } catch {
+                // ignore
+              }
             }
-          }
-        });
+          });
+      } else {
+        try {
+          const key = `fugue-chat-${projectId}`;
+          const existing = localStorage.getItem(key);
+          const arr = existing ? JSON.parse(existing) : [];
+          localStorage.setItem(
+            key,
+            JSON.stringify([...arr, msg].slice(-MAX_MESSAGES))
+          );
+        } catch {
+          // ignore
+        }
+      }
     },
     [conversationId]
   );
@@ -219,7 +249,7 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
         };
       }
 
-      if (Object.keys(supabaseUpdates).length > 0) {
+      if (supabase && Object.keys(supabaseUpdates).length > 0) {
         supabase
           .from("fugue_messages")
           .update(supabaseUpdates)
@@ -243,16 +273,18 @@ export function useChatHistory(conversationId: string): UseChatHistoryReturn {
 
     if (conversationId) {
       localStorage.removeItem(`fugue-chat-${conversationId}`);
-      supabase
-        .from("fugue_messages")
-        .delete()
-        .eq("project_id", conversationId)
-        .then(({ error }) => {
-          if (error) {
-            // Rollback: restore messages on failure
-            setMessages(previousMessages);
-          }
-        });
+      if (supabase) {
+        supabase
+          .from("fugue_messages")
+          .delete()
+          .eq("project_id", conversationId)
+          .then(({ error }) => {
+            if (error) {
+              // Rollback: restore messages on failure
+              setMessages(previousMessages);
+            }
+          });
+      }
     }
   }, [conversationId, messages]);
 

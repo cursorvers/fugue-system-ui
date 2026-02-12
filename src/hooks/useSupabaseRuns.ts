@@ -47,10 +47,15 @@ export function useSupabaseRuns() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     const fetchRuns = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from("fugue_runs")
         .select("id, task_id, project_id, agent_id, status, duration_ms, summary, created_at")
         .order("created_at", { ascending: false })
@@ -71,7 +76,7 @@ export function useSupabaseRuns() {
     fetchRuns();
 
     // Realtime subscription for new runs
-    const channel = supabase
+    const channel = supabase!
       .channel("runs_realtime")
       .on(
         "postgres_changes",
@@ -99,7 +104,7 @@ export function useSupabaseRuns() {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      supabase!.removeChannel(channel);
     };
   }, []);
 

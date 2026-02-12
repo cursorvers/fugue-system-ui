@@ -43,12 +43,17 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     setError(null);
 
     async function fetchTasks() {
-      let query = supabase
+      let query = supabase!
         .from("fugue_tasks")
         .select("*")
         .order("created_at", { ascending: false });
@@ -81,7 +86,7 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
       ? { event: "*" as const, schema: "public", table: "fugue_tasks", filter: `project_id=eq.${projectId}` }
       : { event: "*" as const, schema: "public", table: "fugue_tasks" };
 
-    const channel = supabase
+    const channel = supabase!
       .channel(`fugue_tasks_${projectId ?? "all"}`)
       .on("postgres_changes", realtimeFilter, (payload) => {
           if (payload.eventType === "INSERT") {
@@ -109,7 +114,7 @@ export function useSupabaseTasks(projectId?: string): UseSupabaseTasksReturn {
 
     return () => {
       cancelled = true;
-      supabase.removeChannel(channel);
+      supabase!.removeChannel(channel);
     };
   }, [projectId]);
 

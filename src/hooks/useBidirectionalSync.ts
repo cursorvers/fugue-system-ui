@@ -39,7 +39,7 @@ export function useBidirectionalSync(options: UseBidirectionalSyncOptions): UseB
   const [syncState, setSyncState] = useState<SyncState>(INITIAL_SYNC_STATE);
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
   const onMessageRef = useRef(options.onMessage);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<ReturnType<NonNullable<typeof supabase>["channel"]> | null>(null);
   const entitiesRef = useRef(new Map<string, SyncEntity>());
   const pendingRef = useRef(new Map<string, SyncEntity>());
   const conflictsRef = useRef<SyncConflict[]>([]);
@@ -145,7 +145,7 @@ export function useBidirectionalSync(options: UseBidirectionalSyncOptions): UseB
     onMessageRef.current(msg);
   }, [applyEntityLww, applyResolution, notifyUser, updateSyncState, updateSyncStateWithCount]);
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !supabase) return;
     const onRealtime = (table: SyncTable, payload: RealtimePayload) => {
       const row = payload.eventType === "DELETE" ? payload.old : payload.new;
       if (!row || typeof row !== "object") return;
@@ -160,7 +160,7 @@ export function useBidirectionalSync(options: UseBidirectionalSyncOptions): UseB
       }
       updateSyncState();
     };
-    const channel = supabase
+    const channel = supabase!
       .channel("fugue-bidirectional-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "fugue_tasks" }, (p) => onRealtime("fugue_tasks", p as RealtimePayload))
       .on("postgres_changes", { event: "*", schema: "public", table: "fugue_agents" }, (p) => onRealtime("fugue_agents", p as RealtimePayload))
@@ -169,11 +169,12 @@ export function useBidirectionalSync(options: UseBidirectionalSyncOptions): UseB
     channelRef.current = channel;
     return () => {
       if (!channelRef.current) return;
-      void supabase.removeChannel(channelRef.current);
+      void supabase!.removeChannel(channelRef.current);
       channelRef.current = null;
     };
   }, [applyEntityLww, updateSyncState]);
   const forcePush = useCallback(async () => {
+    if (!supabase) return;
     const pending = Array.from(pendingRef.current.values());
     if (pending.length === 0) return;
     setSyncState((prev) => ({ ...prev, status: "syncing", pendingChanges: pending.length }));
