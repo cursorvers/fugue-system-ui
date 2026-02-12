@@ -10,9 +10,12 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { WelcomeScreen } from "@/components/chat/WelcomeScreen";
 import { AgentStatusPanel, AgentStatusDrawer } from "@/components/chat/AgentStatusPanel";
 import { AmbientAgentBar } from "@/components/chat/AmbientAgentBar";
+import { ExecutionPlanCard } from "@/components/chat/ExecutionPlanCard";
 import { useProject } from "@/contexts/ProjectContext";
 import { AgentsProvider } from "@/contexts/AgentsContext";
 import { useChatHistory } from "@/hooks/useChatHistory";
+import { useExecutionPlan } from "@/hooks/useExecutionPlan";
+import { useChatOrchestration } from "@/hooks/useChatOrchestration";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import type { Message } from "@/types/chat";
 
@@ -42,6 +45,21 @@ function ChatContent() {
   const [showStatusPanel, setShowStatusPanel] = useState(true);
   const [showStatusDrawer, setShowStatusDrawer] = useState(false);
 
+  // Execution plan approval flow
+  const sendRef = useRef<((msg: WebSocketMessage) => void) | null>(null);
+  const {
+    plans,
+    activePlan,
+    addPlan,
+    approvePlan,
+    rejectPlan,
+    updateStepStatus,
+    dismissPlan,
+  } = useExecutionPlan(
+    (planId) => sendRef.current?.({ type: "approve-plan", planId }),
+    (planId, reason) => sendRef.current?.({ type: "reject-plan", planId, reason }),
+  );
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -55,116 +73,24 @@ function ChatContent() {
     setShowScrollButton(distanceFromBottom > 100);
   }, []);
 
-  const handleWebSocketMessage = useCallback(
-    (wsMessage: WebSocketMessage) => {
-      switch (wsMessage.type) {
-        case "ack": {
-          const taskId = wsMessage.taskId as string | undefined;
-          const routing = wsMessage.routing as {
-            suggestedAgent?: string;
-            confidence?: number;
-          } | undefined;
-          if (taskId) {
-            updateMessage(taskId, {
-              status: "delegating" as const,
-              routing: routing
-                ? {
-                    suggestedAgent: routing.suggestedAgent,
-                    confidence: routing.confidence,
-                  }
-                : undefined,
-            });
-          }
-          break;
-        }
+  const { handleWebSocketMessage } = useChatOrchestration({
+    addMessage,
+    updateMessage,
+    addPlan,
+    updateStepStatus,
+  });
 
-        case "chat-response": {
-          const payload = wsMessage.payload as {
-            taskId?: string;
-            role?: string;
-            content?: string;
-            message?: string;
-            timestamp?: number;
-            done?: boolean;
-          };
-          if (payload) {
-            const content = payload.content || payload.message || "";
-            if (!content) break;
-            addMessage({
-              id: `resp-${crypto.randomUUID()}`,
-              type: payload.role === "system" ? "system" : "orchestrator",
-              content,
-              timestamp: payload.timestamp
-                ? new Date(payload.timestamp * 1000)
-                : new Date(),
-              status: payload.done === false ? "delegating" : "completed",
-            });
-          }
-          break;
-        }
-
-        case "task_created": {
-          const payload = wsMessage.payload as {
-            id: string;
-            executor?: string;
-          };
-          if (payload) {
-            updateMessage(payload.id, {
-              status: "delegating" as const,
-              routing: { suggestedAgent: payload.executor },
-            });
-          }
-          break;
-        }
-
-        case "task-result": {
-          const taskId = wsMessage.taskId as string | undefined;
-          const status = wsMessage.status as string | undefined;
-          const logs = wsMessage.logs as string | undefined;
-          if (taskId) {
-            addMessage({
-              id: `result-${crypto.randomUUID()}`,
-              type: "orchestrator",
-              content:
-                status === "completed"
-                  ? "タスクが完了しました"
-                  : "タスクが失敗しました",
-              timestamp: new Date(),
-              status: status === "completed" ? "completed" : "error",
-              details: logs ? [logs] : undefined,
-            });
-          }
-          break;
-        }
-
-        case "error": {
-          const errorMsg =
-            (wsMessage.message as string) ||
-            (wsMessage.payload as { message?: string })?.message ||
-            "エラーが発生しました";
-          addMessage({
-            id: `error-${crypto.randomUUID()}`,
-            type: "system",
-            content: errorMsg,
-            timestamp: new Date(),
-            status: "error",
-          });
-          break;
-        }
-
-        default:
-          break;
-      }
-    },
-    [addMessage, updateMessage]
-  );
-
-  const { isConnected, isConnecting, error, sendChat } = useWebSocket({
+  const { isConnected, isConnecting, error, send, sendChat } = useWebSocket({
     url: WS_URL,
     maxReconnectAttempts: 3,
     reconnectInterval: 5000,
     onMessage: handleWebSocketMessage,
   });
+
+  // Keep send ref up to date for plan approval callbacks
+  useEffect(() => {
+    sendRef.current = send;
+  }, [send]);
 
   const handleSend = useCallback(
     (text: string) => {
@@ -330,6 +256,30 @@ function ChatContent() {
               keyboard_arrow_down
             </span>
           </button>
+
+          {/* Execution Plan Cards */}
+          {plans.length > 0 && (
+            <div className="space-y-2 mb-2">
+              {plans
+                .filter((p) => {
+                  if (p.status !== "completed") return true;
+                  const ts = p.approvedAt ?? p.createdAt;
+                  // Normalize: if numeric and < 1e12, treat as seconds epoch
+                  const msValue = typeof ts === "number" ? (ts < 1e12 ? ts * 1000 : ts) : new Date(ts).getTime();
+                  return Date.now() - msValue < 30000;
+                })
+                .slice(-3)
+                .map((plan) => (
+                  <ExecutionPlanCard
+                    key={plan.id}
+                    plan={plan}
+                    onApprove={approvePlan}
+                    onReject={rejectPlan}
+                    onDismiss={dismissPlan}
+                  />
+                ))}
+            </div>
+          )}
 
           <AmbientAgentBar />
           <ChatInput isConnected={isConnected} onSend={handleSend} />

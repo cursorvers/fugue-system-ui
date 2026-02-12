@@ -9,7 +9,10 @@ import { Button } from "@/components/Button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { AgentsProvider, useAgents } from "@/contexts/AgentsContext";
+import { FleetHealthIndicator } from "@/components/agent-fleet/FleetHealthIndicator";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useSupabaseRuns } from "@/hooks/useSupabaseRuns";
+import { useAgentGraph } from "@/hooks/useAgentGraph";
 import type { Agent, Run, InboxItem } from "@/types";
 
 const statusColors: Record<Agent["status"], "success" | "warning" | "secondary"> = {
@@ -48,9 +51,11 @@ function DashboardContent() {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const { agents, activeAgents } = useAgents();
+  const { health: fleetHealth } = useAgentGraph(agents);
+  const { runs: supabaseRuns } = useSupabaseRuns();
 
   const {
-    runs,
+    runs: wsRuns,
     inbox,
     metrics,
     dataSource,
@@ -60,6 +65,8 @@ function DashboardContent() {
     refresh,
   } = useDashboardData();
 
+  // Supabase runs > WS runs > mock (fallback chain)
+  const runs = supabaseRuns.length > 0 ? supabaseRuns : wsRuns;
   const unreadCount = inbox.filter((i) => !i.read).length;
 
   return (
@@ -98,6 +105,9 @@ function DashboardContent() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                {agents.length > 0 && (
+                  <FleetHealthIndicator health={fleetHealth} compact />
+                )}
                 <Badge variant={isConnected ? "success" : "secondary"} dot>
                   {isConnected ? "オンライン" : "オフライン"}
                 </Badge>

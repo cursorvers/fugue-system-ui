@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useProject } from "@/contexts/ProjectContext";
 import { Logo } from "@/components/Logo";
+import { SyncStatusBadge } from "@/components/SyncStatusBadge";
+import { useBidirectionalSync } from "@/hooks/useBidirectionalSync";
 import { navigationSections, isActivePage, type ActivePage } from "@/config/navigation";
 
 const SIDEBAR_KEY = "fugue-sidebar-collapsed";
@@ -49,6 +51,8 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const { projects, activeProject, setActiveProject, createProject, deleteProject } = useProject();
   const router = useRouter();
+  const noop = useCallback(() => {}, []);
+  const { syncState, conflicts, resolveConflict } = useBidirectionalSync({ onMessage: noop });
 
   const isActive = (href: string) => isActivePage(href, activePage);
 
@@ -88,6 +92,9 @@ export function Sidebar({ activePage = "overview", className }: SidebarProps) {
             </span>
           )}
         </Link>
+        {!collapsed && (
+          <SyncStatusBadge syncState={syncState} conflicts={conflicts} onResolve={resolveConflict} />
+        )}
         <button
           onClick={() => setCollapsed((prev) => !prev)}
           className="p-1 rounded-[var(--radius-s)] hover:bg-[var(--sidebar-accent)] transition-colors flex-shrink-0"

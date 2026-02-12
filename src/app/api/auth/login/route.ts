@@ -5,9 +5,22 @@ import {
   AUTH_COOKIE_NAME,
   AUTH_COOKIE_MAX_AGE,
 } from "@/lib/auth";
+import { validateOrigin } from "@/lib/csrf";
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF: Validate Origin header
+    const originError = validateOrigin(request);
+    if (originError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "CSRF_VIOLATION", message: "Cross-origin request blocked" },
+        },
+        { status: 403 }
+      );
+    }
+
     const body = (await request.json()) as {
       email?: string;
       password?: string;
@@ -24,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = validateCredentials(email, password);
+    const user = await validateCredentials(email, password);
     if (!user) {
       return NextResponse.json(
         {

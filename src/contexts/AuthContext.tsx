@@ -8,8 +8,9 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { useCrossTabSync } from "@/hooks/useCrossTabSync";
 
-export type UserRole = "admin" | "viewer";
+export type UserRole = "admin" | "operator" | "viewer";
 
 interface User {
   readonly id: string;
@@ -89,18 +90,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  // Cross-tab: sync logout across tabs
+  const handleCrossTabAuth = useCallback((action: string) => {
+    if (action === "logout") {
+      setUser(null);
+      setError(null);
+    }
+  }, []);
+  const { broadcast: broadcastAuth } = useCrossTabSync("auth", handleCrossTabAuth);
+
   const logout = useCallback(() => {
     // Fire-and-forget: clear server cookie
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
     setError(null);
-  }, []);
+    broadcastAuth("logout");
+  }, [broadcastAuth]);
 
   const hasRole = useCallback(
     (role: UserRole): boolean => {
       if (!user) return false;
-      if (user.role === "admin") return true;
-      return user.role === role;
+      const hierarchy: Record<UserRole, number> = { admin: 3, operator: 2, viewer: 1 };
+      return hierarchy[user.role] >= hierarchy[role];
     },
     [user]
   );

@@ -3,10 +3,14 @@
   "short_name": "FUGUE",
   "description": "Federated Unified Governance for Universal Execution - Multi-agent Orchestration System",
   "start_url": "/chat",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "developer"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192.svg",

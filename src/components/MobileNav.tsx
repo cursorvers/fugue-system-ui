@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Logo } from "@/components/Logo";
+import { SyncStatusBadge } from "@/components/SyncStatusBadge";
+import { useBidirectionalSync } from "@/hooks/useBidirectionalSync";
 import { navigationSections, isActivePage, type ActivePage } from "@/config/navigation";
 
 interface MobileNavProps {
@@ -19,6 +21,8 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const noop = useCallback(() => {}, []);
+  const { syncState, conflicts, resolveConflict } = useBidirectionalSync({ onMessage: noop });
 
   const isActive = (href: string) => isActivePage(href, activePage);
 
@@ -45,9 +49,12 @@ export function MobileNav({ activePage = "overview", className }: MobileNavProps
           <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">menu</span>
         </button>
 
-        <Link href="/">
-          <Logo size="sm" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/">
+            <Logo size="sm" />
+          </Link>
+          <SyncStatusBadge syncState={syncState} conflicts={conflicts} onResolve={resolveConflict} compact />
+        </div>
 
         <button
           className="p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"

@@ -14,6 +14,7 @@ interface UseWebSocketOptions {
   url: string;
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
+  authToken?: string;
   onMessage?: (message: WebSocketMessage) => void;
   onOpen?: () => void;
   onClose?: () => void;
@@ -34,6 +35,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     url,
     reconnectInterval = 3000,
     maxReconnectAttempts = 5,
+    authToken,
     onMessage,
     onOpen,
     onClose,
@@ -71,6 +73,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     setError(null);
 
     try {
+      // Connect without token in URL (avoid log exposure).
+      // Auth is sent as a post-connect message.
       const ws = new WebSocket(url);
 
       ws.onopen = () => {
@@ -78,6 +82,11 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
         setIsConnecting(false);
         setError(null);
         reconnectAttemptsRef.current = 0;
+
+        // Send auth token as first message (not in URL to prevent log leakage)
+        if (authToken) {
+          ws.send(JSON.stringify({ type: "auth", token: authToken }));
+        }
 
         // Request initial status
         ws.send(JSON.stringify({ type: "status-request" }));
@@ -127,7 +136,7 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
       setError(e instanceof Error ? e.message : "Failed to connect");
       setIsConnecting(false);
     }
-  }, [url, reconnectInterval, maxReconnectAttempts]);
+  }, [url, reconnectInterval, maxReconnectAttempts, authToken]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

@@ -4,6 +4,8 @@ import { RunSchema } from "./run";
 import { TaskSchema } from "./task";
 import { InboxItemSchema } from "./inbox";
 import { DashboardMetricsSchema } from "./metrics";
+import { ExecutionPlanSchema } from "./orchestration";
+import { SyncStateSchema, SyncEntitySchema, SyncConflictSchema } from "./sync";
 
 // =============================================================================
 // Ideal Event Types (future backend alignment)
@@ -109,6 +111,8 @@ export const ServerGitRepoSchema = z.object({
   aheadCount: z.number().optional(),
   behindCount: z.number().optional(),
   lastChecked: z.union([z.string(), z.number()]).optional(),
+  lastCommitAt: z.union([z.string(), z.number()]).optional(),
+  isCurrent: z.boolean().optional(),
   modifiedFiles: z.array(z.string()).optional(),
 });
 export type ServerGitRepo = z.infer<typeof ServerGitRepoSchema>;
@@ -202,6 +206,37 @@ export const ServerPongSchema = z.object({
   timestamp: z.number().optional(),
 });
 
+// Execution plan messages (Phase 7-2)
+export const ServerExecutionPlanSchema = z.object({
+  type: z.literal("execution-plan"),
+  payload: ExecutionPlanSchema,
+});
+
+export const ServerPlanStepUpdateSchema = z.object({
+  type: z.literal("plan-step-update"),
+  planId: z.string(),
+  stepId: z.string(),
+  status: z.enum(["pending", "running", "completed", "failed", "skipped"]),
+});
+
+// Sync messages (Phase 9.2)
+export const ServerSyncStateSchema = z.object({
+  type: z.literal("sync-state"),
+  payload: SyncStateSchema,
+});
+
+export const ServerSyncPushSchema = z.object({
+  type: z.literal("sync-push"),
+  payload: z.object({
+    entities: z.array(SyncEntitySchema),
+  }),
+});
+
+export const ServerSyncConflictSchema = z.object({
+  type: z.literal("sync-conflict"),
+  payload: SyncConflictSchema,
+});
+
 // Union of all actual server message types
 export type ServerMessage =
   | z.infer<typeof ServerTasksMessageSchema>
@@ -211,10 +246,15 @@ export type ServerMessage =
   | z.infer<typeof ServerAckSchema>
   | z.infer<typeof ServerTaskCreatedSchema>
   | z.infer<typeof ServerTaskResultSchema>
+  | z.infer<typeof ServerExecutionPlanSchema>
+  | z.infer<typeof ServerPlanStepUpdateSchema>
   | z.infer<typeof WsChatResponseSchema>
   | z.infer<typeof WsErrorSchema>
   | z.infer<typeof ServerPingSchema>
-  | z.infer<typeof ServerPongSchema>;
+  | z.infer<typeof ServerPongSchema>
+  | z.infer<typeof ServerSyncStateSchema>
+  | z.infer<typeof ServerSyncPushSchema>
+  | z.infer<typeof ServerSyncConflictSchema>;
 
 // =============================================================================
 // Client-to-Server Messages
@@ -234,6 +274,15 @@ export const WsClientMessageSchema = z.discriminatedUnion("type", [
       command: z.string(),
       args: z.array(z.string()).optional(),
     }),
+  }),
+  z.object({
+    type: z.literal("approve-plan"),
+    planId: z.string(),
+  }),
+  z.object({
+    type: z.literal("reject-plan"),
+    planId: z.string(),
+    reason: z.string().optional(),
   }),
   z.object({
     type: z.literal("status-request"),

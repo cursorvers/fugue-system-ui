@@ -1,5 +1,5 @@
 export type { Project, Conversation } from "./project";
-export type { Message } from "./chat";
+export type { Message, ChatAction } from "./chat";
 export type { Agent, AgentStatus, AgentRole } from "./agent";
 export type { Run, RunStatus } from "./run";
 export type { Task, TaskStatus, TaskPriority } from "./task";
@@ -15,6 +15,24 @@ export type {
   ServerAlert,
   ServerProviderHealth,
 } from "./ws-events";
+export type {
+  ExecutionPlan,
+  ExecutionStep,
+  ApprovalRequest,
+} from "./orchestration";
+export type {
+  AgentNode,
+  DependencyEdge,
+  FleetHealth,
+} from "./fleet";
+export type {
+  SyncEntity,
+  SyncEntityType,
+  SyncState,
+  SyncStatus,
+  SyncConflict,
+  SyncConflictResolution,
+} from "./sync";
 
 export {
   AgentSchema,
@@ -47,4 +65,27 @@ export {
   ServerGitRepoSchema,
   ServerAlertSchema,
   ServerProviderHealthSchema,
+  ServerExecutionPlanSchema,
+  ServerPlanStepUpdateSchema,
+  ServerSyncStateSchema,
+  ServerSyncPushSchema,
+  ServerSyncConflictSchema,
 } from "./ws-events";
+export {
+  ExecutionPlanSchema,
+  ExecutionStepSchema,
+  ApprovalRequestSchema,
+} from "./orchestration";
+export {
+  AgentNodeSchema,
+  DependencyEdgeSchema,
+  FleetHealthSchema,
+} from "./fleet";
+export {
+  SyncEntitySchema,
+  SyncEntityTypeSchema,
+  SyncStateSchema,
+  SyncStatusSchema,
+  SyncConflictSchema,
+  SyncConflictResolutionSchema,
+} from "./sync";

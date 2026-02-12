@@ -6,12 +6,13 @@
  *
  * Env vars:
  *   AUTH_SECRET  — JWT signing key (required, generate: openssl rand -hex 32)
- *   AUTH_USERS   — JSON array of allowed users (optional, falls back to defaults)
+ *   AUTH_USERS   — JSON array of allowed users (required, no defaults)
  */
 
 import { SignJWT, jwtVerify } from "jose";
+import { verifyPassword } from "./password";
 
-export type UserRole = "admin" | "viewer";
+export type UserRole = "admin" | "operator" | "viewer";
 
 export interface AuthUser {
   readonly id: string;
@@ -27,31 +28,38 @@ interface StoredUser {
   readonly role: UserRole;
 }
 
-const DEFAULT_USERS: readonly StoredUser[] = [
-  { email: "admin@fugue.dev", password: "fugue2024", name: "Admin", role: "admin" },
-];
-
 function getSecretKey(): Uint8Array {
-  const secret = process.env.AUTH_SECRET ?? "";
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    throw new Error("AUTH_SECRET environment variable is required");
+  }
   return new TextEncoder().encode(secret);
 }
 
 function getStoredUsers(): readonly StoredUser[] {
   const raw = process.env.AUTH_USERS;
-  if (!raw) return DEFAULT_USERS;
+  if (!raw) {
+    throw new Error(
+      "AUTH_USERS environment variable is required. " +
+      'Format: [{"email":"...","password":"...","name":"...","role":"admin|operator|viewer"}]'
+    );
+  }
   try {
     return JSON.parse(raw) as StoredUser[];
   } catch {
-    return DEFAULT_USERS;
+    throw new Error("AUTH_USERS must be valid JSON array");
   }
 }
 
-export function validateCredentials(email: string, password: string): AuthUser | null {
+export async function validateCredentials(email: string, password: string): Promise<AuthUser | null> {
   const users = getStoredUsers();
   const found = users.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    (u) => u.email.toLowerCase() === email.toLowerCase(),
   );
   if (!found) return null;
+
+  const isValid = await verifyPassword(password, found.password);
+  if (!isValid) return null;
 
   return {
     id: `user-${found.email}`,

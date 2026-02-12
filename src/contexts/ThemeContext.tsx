@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { useCrossTabSync } from "@/hooks/useCrossTabSync";
 
 type Theme = "light" | "dark";
 
@@ -40,12 +41,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("fugue-theme", theme);
   }, [theme, mounted]);
 
+  // Cross-tab: sync theme changes
+  const handleCrossTabTheme = useCallback((action: string, payload?: unknown) => {
+    if (action === "change" && (payload === "light" || payload === "dark")) {
+      setThemeState(payload);
+    }
+  }, []);
+  const { broadcast: broadcastTheme } = useCrossTabSync("theme", handleCrossTabTheme);
+
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
+    setThemeState((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      broadcastTheme("change", next);
+      return next;
+    });
   };
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
+    broadcastTheme("change", newTheme);
   };
 
   // Prevent flash of wrong theme

@@ -1,10 +1,14 @@
 /**
  * Cloudflare Access JWT utilities.
  *
- * In production, Cloudflare Access sits as a reverse proxy and sets
- * the CF_Authorization cookie after Google SSO authentication.
- * The JWT is already verified by Cloudflare before reaching the app,
- * so client-side decode (without signature verification) is acceptable.
+ * Two modes:
+ *   1. Server-side (middleware): Full JWKS signature verification via jose
+ *   2. Client-side: Decode-only (CF has already verified before reaching the app)
+ *
+ * Env vars:
+ *   CF_ACCESS_AUD          — CF Access audience tag (required for server verification)
+ *   NEXT_PUBLIC_CF_TEAM_NAME — CF Access team name (default: "fugue")
+ *   NEXT_PUBLIC_ADMIN_EMAILS — Comma-separated admin email list
  */
 
 import type { UserRole } from "@/contexts/AuthContext";
@@ -36,8 +40,19 @@ const ADMIN_EMAILS: readonly string[] = (
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
+// Operator emails from environment — comma-separated
+const OPERATOR_EMAILS: readonly string[] = (
+  process.env.OPERATOR_EMAILS ?? ""
+)
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 function mapRole(email: string): UserRole {
-  return ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "viewer";
+  const lower = email.toLowerCase();
+  if (ADMIN_EMAILS.includes(lower)) return "admin";
+  if (OPERATOR_EMAILS.includes(lower)) return "operator";
+  return "viewer";
 }
 
 function deriveNameFromEmail(email: string): string {
@@ -102,6 +117,22 @@ export function getCfAccessUser(): CfAccessUser | null {
     role: mapRole(payload.email),
     expiresAt: payload.exp * 1000,
   };
+}
+
+/**
+ * Extract email from a CF Access JWT token string (server-side).
+ * Used by middleware after JWKS verification.
+ */
+export function extractEmailFromCfToken(token: string): string | null {
+  const payload = decodeCfJwt(token);
+  return payload?.email ?? null;
+}
+
+/**
+ * Map an email to a user role (server-side).
+ */
+export function getRoleForEmail(email: string): UserRole {
+  return mapRole(email);
 }
 
 /**

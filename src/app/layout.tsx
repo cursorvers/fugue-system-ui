@@ -51,6 +51,11 @@ export default function RootLayout({
         />
       </head>
       <body className="h-full antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+          }}
+        />
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
