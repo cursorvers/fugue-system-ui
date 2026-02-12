@@ -243,16 +243,13 @@ export function useDashboardData() {
     }
   }, [isConnected, refresh]);
 
-  // Derived data: use live data if available, mock otherwise
+  // Derived data: use live data if available, mock fallback when empty
   const isLive = state.dataSource === "live";
 
-  const agents: readonly Agent[] = isLive
-    ? [...mockAgents]
-    : mockAgents;
-
-  const runs: readonly Run[] = isLive
-    ? state.serverTasks.map(serverTaskToRun)
-    : mockRuns;
+  const runs: readonly Run[] =
+    isLive && state.serverTasks.length > 0
+      ? state.serverTasks.map(serverTaskToRun)
+      : mockRuns;
 
   const inbox: readonly InboxItem[] =
     state.alerts.length > 0
@@ -267,7 +264,6 @@ export function useDashboardData() {
     : mockMetrics;
 
   return {
-    agents,
     runs,
     inbox,
     metrics,

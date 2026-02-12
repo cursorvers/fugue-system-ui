@@ -8,6 +8,7 @@ import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
+import { AgentsProvider, useAgents } from "@/contexts/AgentsContext";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import type { Agent, Run, InboxItem } from "@/types";
 
@@ -34,11 +35,21 @@ const inboxTypeConfig: Record<InboxItem["type"], { icon: string; color: string }
 };
 
 export default function Dashboard() {
+  return (
+    <ProtectedRoute>
+      <AgentsProvider>
+        <DashboardContent />
+      </AgentsProvider>
+    </ProtectedRoute>
+  );
+}
+
+function DashboardContent() {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const { agents, activeAgents } = useAgents();
 
   const {
-    agents,
     runs,
     inbox,
     metrics,
@@ -52,7 +63,6 @@ export default function Dashboard() {
   const unreadCount = inbox.filter((i) => !i.read).length;
 
   return (
-    <ProtectedRoute>
       <div className="flex h-screen bg-[var(--background)] overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
@@ -117,7 +127,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <MetricCard
                 label="稼働エージェント"
-                value={`${metrics.activeAgents.current} / ${metrics.activeAgents.total}`}
+                value={agents.length > 0 ? `${activeAgents.length} / ${agents.length}` : `${metrics.activeAgents.current} / ${metrics.activeAgents.total}`}
                 icon="smart_toy"
                 change="+1 本日"
                 changeType="positive"
@@ -328,6 +338,5 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-    </ProtectedRoute>
   );
 }
