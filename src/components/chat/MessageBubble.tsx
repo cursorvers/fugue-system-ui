@@ -275,7 +275,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           "max-w-[85%] lg:max-w-[70%] rounded-[var(--radius-l)] px-3.5 py-2.5 transition-opacity",
           isUser
             ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-            : "bg-[var(--card)] border border-[var(--border)] shadow-[var(--shadow-s)]",
+            : "bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] shadow-[var(--shadow-s)]",
           isUser && status === "pending" && "opacity-70"
         )}
       >

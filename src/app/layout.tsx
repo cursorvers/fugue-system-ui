@@ -56,7 +56,7 @@ export default function RootLayout({
         {/* iPhone splash screen: solid black background matching theme */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className="h-full antialiased">
+      <body className="h-full antialiased bg-[var(--background)] text-[var(--foreground)]">
         <script
           dangerouslySetInnerHTML={{
             __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
