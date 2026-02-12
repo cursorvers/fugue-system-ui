@@ -82,11 +82,28 @@ function ChatContent() {
     updateStepStatus,
   });
 
+  // Track pending WS responses to cancel mock fallback
+  const pendingMockRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastUserMsgRef = useRef<string | null>(null);
+
+  // Wrap WS handler: cancel mock fallback when real response arrives
+  const wrappedHandleWsMessage = useCallback(
+    (msg: Record<string, unknown>) => {
+      if (pendingMockRef.current && lastUserMsgRef.current) {
+        clearTimeout(pendingMockRef.current);
+        pendingMockRef.current = null;
+        lastUserMsgRef.current = null;
+      }
+      handleWebSocketMessage(msg);
+    },
+    [handleWebSocketMessage]
+  );
+
   const { isConnected, isConnecting, error, send, sendChat } = useWebSocket({
     url: WS_URL,
     maxReconnectAttempts: 3,
     reconnectInterval: 5000,
-    onMessage: handleWebSocketMessage,
+    onMessage: wrappedHandleWsMessage,
   });
 
   // Keep send ref up to date for plan approval callbacks
@@ -103,11 +120,26 @@ function ChatContent() {
         type: "user",
         content: text,
         timestamp: new Date(),
-        status: "completed",
+        status: isConnected ? "pending" : "completed",
       });
 
-      // Mock response (WS chat disabled — status-only connection)
-      setTimeout(() => {
+      // Send via WS if connected
+      if (isConnected) {
+        sendChat(text);
+        lastUserMsgRef.current = userMsgId;
+      }
+
+      // Schedule mock fallback (cancelled if real WS response arrives)
+      const MOCK_TIMEOUT = isConnected ? 3000 : 800;
+      pendingMockRef.current = setTimeout(() => {
+        pendingMockRef.current = null;
+        lastUserMsgRef.current = null;
+
+        // Update user message status
+        if (isConnected) {
+          updateMessage(userMsgId, { status: "completed" });
+        }
+
         const response = generateMockResponse(text);
         addMessage({
           id: `mock-${crypto.randomUUID()}`,
@@ -117,9 +149,9 @@ function ChatContent() {
           status: "completed",
           routing: { suggestedAgent: "FUGUE", confidence: 1 },
         });
-      }, 800);
+      }, MOCK_TIMEOUT);
     },
-    [addMessage]
+    [isConnected, addMessage, updateMessage, sendChat]
   );
 
   // Filter out connection spam from old localStorage data

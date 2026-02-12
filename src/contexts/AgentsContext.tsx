@@ -10,6 +10,7 @@ import {
 } from "react";
 import { supabase } from "@/lib/supabase";
 import { AgentSchema, type Agent, type AgentStatus, type AgentRole } from "@/types";
+import { mockAgents } from "@/data/mock-agents";
 
 // --- Connection state machine ---
 type ConnectionState = "connecting" | "ready" | "stale" | "error";
@@ -77,15 +78,23 @@ export function AgentsProvider({ children }: AgentsProviderProps) {
       if (cancelled) return;
 
       if (fetchError) {
-        setError(fetchError.message);
-        setConnectionState("error");
+        // Fallback to mock agents on error
+        setAgents([...mockAgents]);
+        setConnectionState("ready");
+        setError(null);
         return;
       }
 
       const parsed = (data as readonly SupabaseAgent[])
         .map(toAgent)
         .filter((a): a is Agent => a !== null);
-      setAgents(parsed);
+
+      // Fallback to mock agents when Supabase returns empty
+      if (parsed.length === 0) {
+        setAgents([...mockAgents]);
+      } else {
+        setAgents(parsed);
+      }
       setConnectionState("ready");
       setError(null);
     };
