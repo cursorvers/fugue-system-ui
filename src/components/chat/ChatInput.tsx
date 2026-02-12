@@ -53,22 +53,20 @@ export function ChatInput({ isConnected, onSend }: ChatInputProps) {
           onKeyDown={handleKeyDown}
           onCompositionStart={() => setIsComposing(true)}
           onCompositionEnd={() => setIsComposing(false)}
-          placeholder={isConnected ? "何でも聞いてください..." : "接続中..."}
-          disabled={!isConnected}
+          placeholder="何でも聞いてください..."
           rows={1}
           className={cn(
             "w-full resize-none bg-[var(--secondary)] text-[14px] font-primary text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] rounded-[var(--radius-m)] px-3.5 py-3 min-h-[44px] max-h-[120px] outline-none border border-transparent transition-colors",
-            "focus:border-[var(--ring)] focus:bg-[var(--background)]",
-            !isConnected && "opacity-50 cursor-not-allowed"
+            "focus:border-[var(--ring)] focus:bg-[var(--background)]"
           )}
         />
       </div>
       <button
         onClick={handleSend}
-        disabled={!isConnected || !text.trim()}
+        disabled={!text.trim()}
         className={cn(
           "flex items-center justify-center w-[44px] h-[44px] rounded-[var(--radius-m)] transition-colors flex-shrink-0",
-          isConnected && text.trim()
+          text.trim()
             ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90"
             : "bg-[var(--secondary)] text-[var(--muted-foreground)] cursor-not-allowed"
         )}
