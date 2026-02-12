@@ -100,7 +100,7 @@ function DashboardContent() {
                   {dataSource === "live" && (
                     <span className="ml-2 text-[var(--color-success-foreground)]">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-success-foreground)] mr-1 align-middle" aria-hidden="true" />
-                      Live
+                      ライブ
                     </span>
                   )}
                 </p>

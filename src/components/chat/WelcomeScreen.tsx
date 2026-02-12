@@ -41,7 +41,7 @@ export function WelcomeScreen({
         FUGUE Orchestrator
       </h2>
       <p className="text-[12px] font-primary text-[var(--muted-foreground)] text-center max-w-[300px] mb-5">
-        Multi-agent orchestration cockpit. Monitor, coordinate, and direct your AI fleet.
+        マルチエージェント・オーケストレーション。監視・調整・指揮をここから。
       </p>
 
       {/* Agent fleet status — the key differentiator from Happy */}
@@ -50,14 +50,14 @@ export function WelcomeScreen({
           <div className="flex items-center gap-1.5">
             <span className={cn("w-2 h-2 rounded-full", statusColor.active)} />
             <span className="text-[11px] font-secondary text-[var(--foreground)]">
-              {activeAgents.length} active
+              {activeAgents.length} 稼働
             </span>
           </div>
           {idleCount > 0 && (
             <div className="flex items-center gap-1.5">
               <span className={cn("w-2 h-2 rounded-full", statusColor.idle)} />
               <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-                {idleCount} idle
+                {idleCount} 待機
               </span>
             </div>
           )}
@@ -65,7 +65,7 @@ export function WelcomeScreen({
             <div className="flex items-center gap-1.5">
               <span className={cn("w-2 h-2 rounded-full", statusColor.error)} />
               <span className="text-[11px] font-secondary text-[var(--color-error-foreground)]">
-                {errorCount} error
+                {errorCount} エラー
               </span>
             </div>
           )}
@@ -73,7 +73,7 @@ export function WelcomeScreen({
             <div className="flex items-center gap-1.5">
               <span className={cn("w-2 h-2 rounded-full", statusColor.offline)} />
               <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
-                {offlineCount} offline
+                {offlineCount} オフライン
               </span>
             </div>
           )}
@@ -89,12 +89,12 @@ export function WelcomeScreen({
             />
             <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
               {connectionState === "ready"
-                ? "Realtime"
+                ? "リアルタイム"
                 : connectionState === "stale"
-                  ? "Stale"
+                  ? "遅延"
                   : connectionState === "error"
-                    ? "Error"
-                    : "Connecting"}
+                    ? "エラー"
+                    : "接続中"}
             </span>
           </div>
         </div>

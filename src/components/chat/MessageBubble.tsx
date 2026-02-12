@@ -343,7 +343,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         {message.details && message.details.length > 0 && (
           <details className="mt-2">
             <summary className="text-[11px] font-secondary text-[var(--muted-foreground)] cursor-pointer hover:text-[var(--foreground)]">
-              Details
+              詳細
             </summary>
             <pre className="mt-1 bg-[var(--background)] rounded-[var(--radius-s)] px-3 py-2 overflow-x-auto text-[11px] font-secondary leading-relaxed text-[var(--muted-foreground)]">
               {message.details.join("\n")}

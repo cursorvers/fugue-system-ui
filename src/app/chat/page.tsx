@@ -166,7 +166,7 @@ function ChatContent() {
         <div className="flex items-center justify-between px-4 md:px-8 pt-4 md:pt-6 pb-2 md:pb-3">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-primary font-semibold text-[var(--foreground)]">
-              Chat
+              チャット
             </h1>
             <div className="flex items-center gap-1.5">
               <span
@@ -180,10 +180,10 @@ function ChatContent() {
               />
               <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
                 {isConnected
-                  ? "Connected"
+                  ? "接続中"
                   : isConnecting
-                    ? "Connecting..."
-                    : error || "Disconnected"}
+                    ? "接続しています..."
+                    : error || "未接続"}
               </span>
             </div>
           </div>
@@ -203,7 +203,7 @@ function ChatContent() {
                   ? "bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--foreground)]"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
               }`}
-              aria-label="Agent status"
+              aria-label="エージェントステータス"
             >
               <span className="material-symbols-sharp text-[18px]">monitoring</span>
             </button>
@@ -212,7 +212,7 @@ function ChatContent() {
               type="button"
               onClick={clearHistory}
               className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-[var(--radius-m)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--secondary)] transition-colors"
-              aria-label="Clear chat"
+              aria-label="チャットをクリア"
             >
               <span className="material-symbols-sharp text-[18px]">delete_sweep</span>
             </button>
@@ -251,7 +251,7 @@ function ChatContent() {
             className={`absolute bottom-20 right-6 flex items-center justify-center min-w-[44px] min-h-[44px] w-[44px] h-[44px] rounded-full bg-[var(--card)] border border-[var(--border)] shadow-md transition-opacity ${
               showScrollButton ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
-            aria-label="Scroll to bottom"
+            aria-label="下にスクロール"
           >
             <span className="material-symbols-sharp text-[20px] text-[var(--foreground)]">
               keyboard_arrow_down

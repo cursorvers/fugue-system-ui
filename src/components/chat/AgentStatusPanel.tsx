@@ -134,16 +134,16 @@ function AgentCard({ agent }: AgentCardProps) {
       {expanded && (
         <div className="px-3 pb-2.5 pl-[42px] space-y-1">
           <div className="flex items-center gap-3 text-[10px] font-secondary text-[var(--muted-foreground)]">
-            <span>Role: {agent.role}</span>
-            {agent.provider && <span>Provider: {agent.provider}</span>}
+            <span>役割: {agent.role}</span>
+            {agent.provider && <span>プロバイダ: {agent.provider}</span>}
           </div>
           <div className="flex items-center gap-3 text-[10px] font-secondary text-[var(--muted-foreground)]">
-            <span>Tasks: {agent.tasks}</span>
-            <span>Latency: {agent.latency}</span>
+            <span>タスク: {agent.tasks}</span>
+            <span>遅延: {agent.latency}</span>
           </div>
           {agent.lastSeen && (
             <p className="text-[10px] font-secondary text-[var(--muted-foreground)]">
-              Last seen: {new Date(agent.lastSeen).toLocaleTimeString()}
+              最終確認: {new Date(agent.lastSeen).toLocaleTimeString()}
             </p>
           )}
         </div>
@@ -183,7 +183,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
             monitoring
           </span>
           <span className="text-[13px] font-primary font-semibold text-[var(--foreground)]">
-            Status
+            ステータス
           </span>
           <span className="text-[11px] font-secondary text-[var(--muted-foreground)]">
             {activeCount}/{agents.length}
@@ -205,7 +205,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
           type="button"
           onClick={onClose}
           className="flex items-center justify-center w-7 h-7 rounded-[var(--radius-s)] hover:bg-[var(--secondary)] transition-colors"
-          aria-label="Close panel"
+          aria-label="パネルを閉じる"
         >
           <span className="material-symbols-sharp text-[16px] text-[var(--muted-foreground)]">
             close
@@ -224,7 +224,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
               : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           }`}
         >
-          Agents
+          エージェント
         </button>
         <button
           type="button"
@@ -235,7 +235,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
               : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           }`}
         >
-          Tasks
+          タスク
           {activeTasks.length > 0 && (
             <span className="ml-1 text-[10px] font-secondary text-[var(--color-info-foreground)]">
               {activeTasks.length}
@@ -262,7 +262,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
                   smart_toy
                 </span>
                 <p className="text-[12px] font-primary text-[var(--muted-foreground)] mt-1">
-                  No agents registered
+                  登録済みエージェントなし
                 </p>
               </div>
             ) : (
@@ -279,7 +279,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
                   task_alt
                 </span>
                 <p className="text-[12px] font-primary text-[var(--muted-foreground)] mt-1">
-                  No active tasks
+                  実行中のタスクなし
                 </p>
               </div>
             ) : (
@@ -331,7 +331,7 @@ function AgentStatusPanelContent({ onClose }: { readonly onClose: () => void }) 
           className="flex items-center justify-center gap-1 text-[11px] font-primary text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
         >
           <span className="material-symbols-sharp text-[14px]">open_in_new</span>
-          Full monitoring
+          詳細モニタリング
         </a>
       </div>
     </aside>

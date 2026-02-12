@@ -69,7 +69,7 @@ export function AmbientAgentBar({ onTapAgent }: AmbientAgentBarProps) {
     <div
       className="flex items-center gap-1.5 px-1 py-1 h-8"
       role="status"
-      aria-label={`${activeAgents.length} active agents`}
+      aria-label={`${activeAgents.length} 稼働中エージェント`}
     >
       {/* Connection state indicator */}
       {connectionState !== "ready" && (
@@ -114,7 +114,7 @@ export function AmbientAgentBar({ onTapAgent }: AmbientAgentBarProps) {
       {/* Orchestration summary */}
       <div className="flex items-center gap-2 ml-auto flex-shrink-0">
         <span className="text-[10px] font-secondary text-[var(--muted-foreground)]">
-          {activeAgents.length}/{agents.length} agents
+          {activeAgents.length}/{agents.length} エージェント
         </span>
         <span
           className={cn(
