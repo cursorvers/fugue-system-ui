@@ -32,8 +32,11 @@ export default defineConfig({
           include: [
             "src/hooks/**/*.test.{ts,tsx}",
             "src/components/**/*.test.{ts,tsx}",
+            "src/contexts/**/*.test.{ts,tsx}",
+            "src/app/**/*.test.{ts,tsx}",
             "src/types/**/*.test.ts",
           ],
+          exclude: ["src/app/api/**"],
         },
       },
     ],

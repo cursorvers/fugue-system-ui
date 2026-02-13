@@ -36,6 +36,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const toLoginErrorMessage = useCallback((code?: string, fallback?: string) => {
+    switch (code) {
+      case "INVALID_CREDENTIALS":
+        return "メールアドレスまたはパスワードが正しくありません";
+      case "INVALID_INPUT":
+        return "メールアドレスとパスワードを入力してください";
+      case "CSRF_VIOLATION":
+        return "セキュリティチェックによりログインできませんでした。ページを更新して再試行してください。";
+      case "SERVER_ERROR":
+        return "サーバーエラーが発生しました。しばらくしてから再試行してください。";
+      default:
+        return fallback ?? "ログインに失敗しました";
+    }
+  }, []);
+
   // Check session on mount via server-side JWT validation
   useEffect(() => {
     const checkSession = async () => {
@@ -66,28 +81,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ email, password }),
         });
 
-        const data = (await res.json()) as {
-          success: boolean;
-          data?: User;
-          error?: { message: string };
-        };
+        let data: unknown = null;
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
 
-        if (data.success && data.data) {
-          setUser(data.data);
+        const parsed = data as
+          | {
+              success?: boolean;
+              data?: User;
+              error?: { code?: string; message?: string };
+            }
+          | null;
+
+        if (parsed?.success && parsed.data) {
+          setUser(parsed.data);
           setIsLoading(false);
           return true;
         }
 
-        setError(data.error?.message ?? "Login failed");
+        setUser(null);
+        setError(toLoginErrorMessage(parsed?.error?.code, parsed?.error?.message));
         setIsLoading(false);
         return false;
       } catch {
-        setError("Network error");
+        setUser(null);
+        setError("ネットワークエラーが発生しました。接続を確認して再試行してください。");
         setIsLoading(false);
         return false;
       }
     },
-    []
+    [toLoginErrorMessage]
   );
 
   // Cross-tab: sync logout across tabs
