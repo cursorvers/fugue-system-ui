@@ -39,8 +39,8 @@ describe("LoginPage", () => {
       throw new Error(`[TEST] unexpected fetch: ${url}`);
     });
 
-    // @ts-expect-error - override fetch for test
-    global.fetch = fetchMock;
+    // Override fetch for test.
+    (globalThis as unknown as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
 
     render(
       <AuthProvider>
@@ -64,4 +64,3 @@ describe("LoginPage", () => {
     });
   });
 });
-
