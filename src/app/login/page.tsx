@@ -7,9 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [localError, setLocalError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, error } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -20,15 +19,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError("");
     setIsLoading(true);
 
     const success = await login(email, password);
 
     if (success) {
       router.push("/");
-    } else {
-      setLocalError("メールアドレスまたはパスワードが正しくありません");
     }
 
     setIsLoading(false);
@@ -86,8 +82,10 @@ export default function LoginPage() {
               />
             </div>
 
-            {localError && (
-              <p className="text-sm text-red-500 text-center">{localError}</p>
+            {error && (
+              <p className="text-sm text-red-500 text-center" role="alert">
+                {error}
+              </p>
             )}
 
             <button
