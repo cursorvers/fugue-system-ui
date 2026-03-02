@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ReactNode, type ErrorInfo } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   readonly children: ReactNode;
@@ -23,7 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("[ErrorBoundary]", error, info.componentStack);
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
   }
 
   render() {
@@ -39,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
             エラーが発生しました
           </h2>
           <p className="text-sm font-secondary text-[var(--muted-foreground)] mb-4 max-w-md">
-            {this.state.error?.message ?? "予期しないエラーです"}
+            予期しないエラーが発生しました。しばらく経ってから再試行してください。
           </p>
           <button
             type="button"

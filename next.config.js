@@ -1,3 +1,5 @@
+const { withSentryConfig } = require("@sentry/nextjs");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -13,7 +15,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob:",
-              "connect-src 'self' wss://cockpit-public-ws.masa-stage1.workers.dev https://*.supabase.co",
+              "connect-src 'self' wss://cockpit-public-ws.masa-stage1.workers.dev https://*.supabase.co https://*.sentry.io",
               "manifest-src 'self'",
               "frame-ancestors 'none'",
             ].join("; "),
@@ -44,17 +46,29 @@ const nextConfig = {
   },
 };
 
+const sentryWebpackPluginOptions = {
+  // Suppress source map upload logs in CI
+  silent: true,
+  // Upload source maps to Sentry for readable stack traces
+  org: "cursorvers",
+  project: "javascript-react",
+  // Auth token for source map uploads (set SENTRY_AUTH_TOKEN in Vercel env vars)
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+};
+
+// Build the final config, composing Sentry + optional bundle analyzer
+let finalConfig = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+
 // Bundle analyzer — enable with ANALYZE=true
 if (process.env.ANALYZE === "true") {
   try {
     const withBundleAnalyzer = require("@next/bundle-analyzer")({
       enabled: true,
     });
-    module.exports = withBundleAnalyzer(nextConfig);
+    finalConfig = withBundleAnalyzer(finalConfig);
   } catch {
     // @next/bundle-analyzer not installed — skip
-    module.exports = nextConfig;
   }
-} else {
-  module.exports = nextConfig;
 }
+
+module.exports = finalConfig;
