@@ -10,9 +10,9 @@ Sentry.init({
   // Performance: sample 10% in production
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
 
-  // Session replay: off by default (can enable later)
+  // Session replay: capture on errors for debugging (mask all text/inputs by default)
   replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 0,
+  replaysOnErrorSampleRate: process.env.NODE_ENV === "production" ? 0.5 : 0,
 
   // Security: no PII
   sendDefaultPii: false,
@@ -52,6 +52,7 @@ Sentry.init({
         "set-cookie",
         "x-api-key",
         "x-forwarded-for",
+        "x-real-ip",
       ];
       for (const header of sensitiveHeaders) {
         if (event.request.headers[header]) {
@@ -60,11 +61,12 @@ Sentry.init({
       }
     }
 
-    // Scrub PII from request data
+    // Scrub PII from request data (SSoT — keep in sync with workers-hub sentry.ts)
     if (event.request?.data && typeof event.request.data === "string") {
-      event.request.data = event.request.data
-        .replace(/"(password|token|secret|api_key|apiKey|access_token|refresh_token)":\s*"[^"]*"/gi, '"$1": "[Filtered]"')
-        .replace(/"(email)":\s*"[^"]*"/gi, '"$1": "[Filtered]"');
+      event.request.data = event.request.data.replace(
+        /"(password|token|secret|api_key|apiKey|access_token|refresh_token|client_secret|encryption_key|email)":\s*"[^"]*"/gi,
+        '"$1": "[Filtered]"',
+      );
     }
 
     return event;
