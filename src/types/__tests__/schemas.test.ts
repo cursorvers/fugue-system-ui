@@ -84,6 +84,7 @@ describe("Zod schemas", () => {
 
   describe("AgentRoleSchema", () => {
     it.each([
+      "orchestrator",
       "architect", "code-reviewer", "security-analyst",
       "reviewer", "ui-reviewer", "designer", "analyst", "general-reviewer",
     ])("accepts '%s'", (role) => {

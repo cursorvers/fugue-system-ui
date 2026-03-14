@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import { Badge } from "@/components/Badge";
 import { useAgents } from "@/contexts/AgentsContext";
 import { useSupabaseTasks } from "@/hooks/useSupabaseTasks";
@@ -97,7 +98,7 @@ function AgentCard({ agent }: AgentCardProps) {
         <div className="relative flex-shrink-0">
           <div className="w-7 h-7 rounded-[var(--radius-s)] bg-[var(--muted)] flex items-center justify-center">
             <span className="text-[11px] font-secondary font-semibold text-[var(--foreground)]">
-              {agent.name.charAt(0)}
+              {getAgentAvatarLabel(agent.name)}
             </span>
           </div>
           <span

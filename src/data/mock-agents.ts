@@ -2,6 +2,16 @@ import type { Agent } from "@/types";
 
 export const mockAgents: readonly Agent[] = [
   {
+    id: "agent-claude",
+    name: "Claude",
+    role: "orchestrator",
+    status: "active",
+    tasks: 0,
+    latency: "—",
+    lastSeen: "2026-02-10T01:00:00Z",
+    provider: "claude",
+  },
+  {
     id: "agent-codex",
     name: "Codex",
     role: "architect",

@@ -14,6 +14,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import type { AgentNode, DependencyEdge } from "@/types/fleet";
 
+function isOrchestratorRole(role: AgentNode["role"]): boolean {
+  return role === "orchestrator" || role === "architect" || role === "general-reviewer";
+}
+
 // ─── Custom Node ────────────────────────────────────────────────────────────
 
 const statusColors: Record<AgentNode["status"], string> = {
@@ -84,11 +88,9 @@ function layoutNodes(
   agentNodes: readonly AgentNode[]
 ): readonly Node[] {
   // Simple layered layout: orchestrators top, workers middle, security bottom
-  const orchestrators = agentNodes.filter(
-    (n) => n.role === "architect" || n.role === "general-reviewer"
-  );
+  const orchestrators = agentNodes.filter((n) => isOrchestratorRole(n.role));
   const workers = agentNodes.filter(
-    (n) => n.role !== "architect" && n.role !== "general-reviewer" && n.role !== "security-analyst"
+    (n) => !isOrchestratorRole(n.role) && n.role !== "security-analyst"
   );
   const security = agentNodes.filter((n) => n.role === "security-analyst");
 

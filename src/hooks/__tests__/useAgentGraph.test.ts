@@ -45,6 +45,23 @@ describe("useAgentGraph", () => {
       expect(result.current.edges[0].target).toBe("worker");
     });
 
+    it("treats orchestrator role as an orchestration source", () => {
+      const agents = [
+        createAgent({ id: "claude", role: "orchestrator", provider: "claude" }),
+        createAgent({ id: "worker", role: "analyst", provider: "glm" }),
+      ];
+      const { result } = renderHook(() => useAgentGraph(agents));
+
+      expect(result.current.edges).toContainEqual(
+        expect.objectContaining({
+          id: "claude->worker",
+          source: "claude",
+          target: "worker",
+          label: "cross",
+        })
+      );
+    });
+
     it("creates feedback edges from security to architect", () => {
       const agents = [
         createAgent({ id: "arch", role: "architect" }),

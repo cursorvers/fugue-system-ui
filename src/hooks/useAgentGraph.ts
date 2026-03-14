@@ -10,15 +10,15 @@ interface UseAgentGraphReturn {
   readonly health: FleetHealth;
 }
 
+function isOrchestratorRole(role: Agent["role"]): boolean {
+  return role === "orchestrator" || role === "architect" || role === "general-reviewer";
+}
+
 // Build dependency edges based on orchestration patterns
 function buildEdges(agents: readonly Agent[]): readonly DependencyEdge[] {
   const edges: DependencyEdge[] = [];
-  const orchestrators = agents.filter(
-    (a) => a.role === "architect" || a.role === "general-reviewer"
-  );
-  const workers = agents.filter(
-    (a) => a.role !== "architect" && a.role !== "general-reviewer"
-  );
+  const orchestrators = agents.filter((a) => isOrchestratorRole(a.role));
+  const workers = agents.filter((a) => !isOrchestratorRole(a.role));
 
   // Orchestrators feed into workers
   for (const orch of orchestrators) {
@@ -37,7 +37,9 @@ function buildEdges(agents: readonly Agent[]): readonly DependencyEdge[] {
 
   // Security analyst feeds back to architects
   const securityAgents = agents.filter((a) => a.role === "security-analyst");
-  const architects = agents.filter((a) => a.role === "architect");
+  const architects = agents.filter(
+    (a) => a.role === "architect" || a.role === "orchestrator"
+  );
   for (const sec of securityAgents) {
     for (const arch of architects) {
       edges.push({
