@@ -45,7 +45,7 @@ const COLLAPSED_LIMIT = 6;
 const staticAgents: readonly Agent[] = [
   { name: "Claude", role: "orchestrator", status: "active", tasks: 47, successRate: "99.8%", quota: { used: 0, limit: 100, unit: "%", period: "weekly" } },
   { name: "Codex", role: "security-analyst", status: "active", tasks: 57, successRate: "99.2%", quota: { used: 0, limit: 100, unit: "%", period: "monthly" } },
-  { name: "GLM-4.7", role: "code-reviewer", status: "active", tasks: 342, successRate: "98.8%", quota: { used: 0, limit: 100, unit: "%", period: "5h rolling" } },
+  { name: "GLM", role: "code-reviewer", status: "active", tasks: 342, successRate: "98.8%", quota: { used: 0, limit: 100, unit: "%", period: "5h rolling" } },
   { name: "Gemini", role: "ui-reviewer", status: "active", tasks: 89, successRate: "97.5%", quota: { used: 0, limit: 60, unit: "requests" } },
   { name: "Pencil", role: "design-system", status: "active", tasks: 67, successRate: "100%", quota: { used: 0, limit: -1, unit: "unlimited" } },
   { name: "Subagent", role: "explore", status: "idle", tasks: 234, successRate: "96.3%", quota: { used: 0, limit: -1, unit: "unlimited" } },
@@ -55,12 +55,12 @@ const staticAgents: readonly Agent[] = [
 ];
 
 const staticTasks: readonly Task[] = [
-  { id: "TSK-001", name: "Code Review: auth.ts", agent: "GLM-4.7", status: "completed", time: "2m ago" },
+  { id: "TSK-001", name: "Code Review: auth.ts", agent: "GLM", status: "completed", time: "2m ago" },
   { id: "TSK-002", name: "Security Analysis: payments.ts", agent: "Codex", status: "completed", time: "5m ago" },
   { id: "TSK-003", name: "UI Review: Dashboard", agent: "Gemini", status: "running", time: "8m ago" },
   { id: "TSK-004", name: "Design: Settings Page", agent: "Pencil", status: "queued", time: "12m ago" },
   { id: "TSK-005", name: "Plan Review: API Refactor", agent: "Codex", status: "completed", time: "15m ago" },
-  { id: "TSK-006", name: "Refactor: utils.ts", agent: "GLM-4.7", status: "queued", time: "18m ago" },
+  { id: "TSK-006", name: "Refactor: utils.ts", agent: "GLM", status: "queued", time: "18m ago" },
 ];
 
 const statusConfig = {
@@ -79,7 +79,7 @@ const taskStatusConfig = {
 const agentDetails: Record<string, { description: string; recentTasks: readonly string[]; config: readonly string[] }> = {
   Claude: { description: "Primary orchestrator. Routes tasks, integrates results, manages consensus votes.", recentTasks: ["Orchestrated 3-party vote for deploy", "Routed auth review to GLM", "Integrated security scan results"], config: ["Model: Opus 4.6", "Role: Orchestrator", "Auto-execute: enabled"] },
   Codex: { description: "Architecture, security analysis, and high-precision code review.", recentTasks: ["Security scan: payments.ts (passed)", "Architecture review: API v2", "Plan review: microservices migration"], config: ["Plan: $200/mo fixed", "Agents: architect, security-analyst, code-reviewer", "Priority: Critical path"] },
-  "GLM-4.7": { description: "Fast code review, refactoring advice, and general-purpose analysis.", recentTasks: ["Code review: auth.ts (6/7)", "Refactor suggestion: utils.ts", "Summary: sprint retrospective"], config: ["Plan: $15/mo fixed", "Parallel limit: 7", "Agents: code-reviewer, refactor-advisor"] },
+  "GLM": { description: "Fast code review, refactoring advice, and general-purpose analysis.", recentTasks: ["Code review: auth.ts (6/7)", "Refactor suggestion: utils.ts", "Summary: sprint retrospective"], config: ["Plan: $15/mo fixed", "Parallel limit: 7", "Agents: code-reviewer, refactor-advisor"] },
   Gemini: { description: "UI/UX review with visual analysis. Screenshot-based validation.", recentTasks: ["UI review: Dashboard layout", "Contrast audit: dark mode", "Responsive check: mobile nav"], config: ["Billing: Pay-per-use", "Weekly limit: 60 requests", "Agents: ui-reviewer, image-analyst"] },
   Pencil: { description: "Design system management via MCP. Component creation and theming.", recentTasks: ["Created Card component", "Updated dark theme variables", "Designed Settings layout"], config: ["Cost: Free (MCP)", "Tools: batch_design, set_variables", "Auto-trigger: .pen files"] },
   Subagent: { description: "File exploration only. Haiku/Sonnet subagent (rate-limit restricted).", recentTasks: ["Explored src/components/ (3 files)", "Found navigation config", "Scanned test coverage"], config: ["Model: Haiku", "Limit: 5/week", "Type: Explore only"] },

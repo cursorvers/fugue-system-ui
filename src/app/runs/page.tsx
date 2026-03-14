@@ -31,7 +31,7 @@ interface LogEntry {
 
 const runs: readonly Run[] = [
   { id: "RUN-042", name: "Security Analysis: payments.ts", agent: "Codex", status: "success", duration: "33s", time: "5m ago", logsCount: 12 },
-  { id: "RUN-041", name: "Code Review: auth.ts", agent: "GLM-4.7", status: "success", duration: "18s", time: "2m ago", logsCount: 8 },
+  { id: "RUN-041", name: "Code Review: auth.ts", agent: "GLM", status: "success", duration: "18s", time: "2m ago", logsCount: 8 },
   { id: "RUN-040", name: "UI Review: Dashboard", agent: "Gemini", status: "running", duration: "1m 12s", time: "8m ago", logsCount: 4 },
   { id: "RUN-039", name: "Plan Review: API Refactor", agent: "Codex", status: "success", duration: "45s", time: "15m ago", logsCount: 15 },
   { id: "RUN-038", name: "Browser Test: Checkout Flow", agent: "Manus", status: "failed", duration: "2m 30s", time: "22m ago", logsCount: 23 },
@@ -40,7 +40,7 @@ const runs: readonly Run[] = [
 
 const recentLogs: readonly LogEntry[] = [
   { timestamp: "16:42:15", level: "INFO", agent: "Codex", message: "Security analysis completed for payments.ts" },
-  { timestamp: "16:42:10", level: "INFO", agent: "GLM-4.7", message: "Code review delegated: auth.ts" },
+  { timestamp: "16:42:10", level: "INFO", agent: "GLM", message: "Code review delegated: auth.ts" },
   { timestamp: "16:41:58", level: "WARN", agent: "Gemini", message: "Rate limit approaching (85% usage)" },
   { timestamp: "16:41:45", level: "INFO", agent: "Orchestrator", message: "Task TSK-003 assigned to Gemini ui-reviewer" },
   { timestamp: "16:41:30", level: "INFO", agent: "Pencil", message: "Design system component created: Card" },
@@ -71,9 +71,9 @@ const runLogs: Record<string, readonly LogEntry[]> = {
     { timestamp: "16:42:33", level: "INFO", agent: "Codex", message: "Analysis complete: 1 warning, 0 critical" },
   ],
   "RUN-041": [
-    { timestamp: "16:41:42", level: "INFO", agent: "GLM-4.7", message: "Starting code review for auth.ts" },
-    { timestamp: "16:41:48", level: "INFO", agent: "GLM-4.7", message: "Checking type safety..." },
-    { timestamp: "16:41:55", level: "INFO", agent: "GLM-4.7", message: "Review complete: Score 6/7" },
+    { timestamp: "16:41:42", level: "INFO", agent: "GLM", message: "Starting code review for auth.ts" },
+    { timestamp: "16:41:48", level: "INFO", agent: "GLM", message: "Checking type safety..." },
+    { timestamp: "16:41:55", level: "INFO", agent: "GLM", message: "Review complete: Score 6/7" },
   ],
   "RUN-040": [
     { timestamp: "16:40:48", level: "INFO", agent: "Gemini", message: "Starting UI review for Dashboard" },
@@ -96,7 +96,7 @@ const runLogs: Record<string, readonly LogEntry[]> = {
   "RUN-037": [
     { timestamp: "16:37:00", level: "INFO", agent: "Orchestrator", message: "Initiating 3-party consensus vote" },
     { timestamp: "16:37:15", level: "INFO", agent: "Codex", message: "Vote: APPROVE — deploy is safe" },
-    { timestamp: "16:37:20", level: "INFO", agent: "GLM-4.7", message: "Vote: APPROVE — no regressions" },
+    { timestamp: "16:37:20", level: "INFO", agent: "GLM", message: "Vote: APPROVE — no regressions" },
     { timestamp: "16:37:25", level: "INFO", agent: "Gemini", message: "Vote: APPROVE — UI verified" },
     { timestamp: "16:37:30", level: "INFO", agent: "Orchestrator", message: "Consensus reached: 3/3 approved" },
     { timestamp: "16:38:00", level: "INFO", agent: "Orchestrator", message: "Deploy initiated to preview" },

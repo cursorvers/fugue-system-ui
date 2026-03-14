@@ -16,7 +16,7 @@ export const mockTasks: readonly Task[] = [
     title: "Review auth refactor PR",
     status: "completed",
     priority: "high",
-    assignee: "GLM-4.7",
+    assignee: "GLM",
     createdAt: "2026-02-09T12:00:00Z",
     updatedAt: "2026-02-10T00:55:08Z",
   },
