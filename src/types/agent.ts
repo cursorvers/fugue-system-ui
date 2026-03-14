@@ -4,6 +4,7 @@ export const AgentStatusSchema = z.enum(["active", "idle", "offline", "error"]);
 export type AgentStatus = z.infer<typeof AgentStatusSchema>;
 
 export const AgentRoleSchema = z.enum([
+  "orchestrator",
   "architect",
   "code-reviewer",
   "security-analyst",
@@ -23,7 +24,7 @@ export const AgentSchema = z.object({
   tasks: z.number().int().min(0),
   latency: z.string(),
   lastSeen: z.string().datetime().optional(),
-  provider: z.enum(["codex", "glm", "gemini", "pencil", "grok"]).optional(),
+  provider: z.enum(["codex", "glm", "gemini", "pencil", "grok", "claude"]).optional(),
 });
 
 export type Agent = z.infer<typeof AgentSchema>;

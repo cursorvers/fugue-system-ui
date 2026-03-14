@@ -14,6 +14,7 @@ import { BottomTabBar } from "@/components/BottomTabBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useSupabaseRuns } from "@/hooks/useSupabaseRuns";
 import { useAgentGraph } from "@/hooks/useAgentGraph";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import type { Agent, Run, InboxItem } from "@/types";
 
 const statusColors: Record<Agent["status"], "success" | "warning" | "secondary"> = {
@@ -192,7 +193,7 @@ function DashboardContent() {
                       <div className="relative">
                         <div className="w-8 h-8 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center justify-center">
                           <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">
-                            {agent.name.charAt(0)}
+                            {getAgentAvatarLabel(agent.name)}
                           </span>
                         </div>
                         <span

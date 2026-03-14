@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import { Card, CardContent } from "./Card";
 import { Badge } from "./Badge";
 
@@ -42,7 +43,7 @@ export function AgentCard({
               style={{ backgroundColor: color }}
             >
               <span className="text-white font-primary font-bold text-sm">
-                {name.charAt(0)}
+                {getAgentAvatarLabel(name)}
               </span>
             </div>
             <div>

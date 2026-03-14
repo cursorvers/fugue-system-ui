@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import { useAgents } from "@/contexts/AgentsContext";
 import { useContextualSuggestions } from "@/hooks/useContextualSuggestions";
 import type { AgentStatus } from "@/types";
@@ -118,7 +119,7 @@ export function WelcomeScreen({
               title={`${agent.name} — ${agent.role} (${agent.status})`}
             >
               <span className="text-[10px] font-secondary font-bold text-[var(--foreground)]">
-                {agent.name.charAt(0)}
+                {getAgentAvatarLabel(agent.name)}
               </span>
             </div>
           ))}

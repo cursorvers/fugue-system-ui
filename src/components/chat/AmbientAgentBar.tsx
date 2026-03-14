@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import { useAgents } from "@/contexts/AgentsContext";
 import type { Agent } from "@/types";
 
@@ -99,7 +100,7 @@ export function AmbientAgentBar({ onTapAgent }: AmbientAgentBarProps) {
           aria-label={`${agent.name}: ${agent.status}`}
         >
           <span className="text-[9px] font-secondary font-bold text-[var(--foreground)]">
-            {agent.name.charAt(0)}
+            {getAgentAvatarLabel(agent.name)}
           </span>
         </button>
       ))}

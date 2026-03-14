@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { useServerData } from "@/hooks/useServerData";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { getAgentAvatarLabel } from "@/lib/agent-display";
 import type { ServerTask } from "@/types";
 
 // --- Types ---
@@ -252,7 +253,7 @@ export default function WorkPage() {
                             <div className="relative">
                               <div className="w-8 h-8 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center justify-center">
                                 <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">
-                                  {agent.name.charAt(0)}
+                                  {getAgentAvatarLabel(agent.name)}
                                 </span>
                               </div>
                               <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[var(--card)] ${config.dot}`} />
@@ -405,7 +406,7 @@ export default function WorkPage() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-[var(--radius-m)] bg-[var(--muted)] flex items-center justify-center">
-                      <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">{agent.name.charAt(0)}</span>
+                      <span className="text-xs font-secondary font-semibold text-[var(--foreground)]">{getAgentAvatarLabel(agent.name)}</span>
                     </div>
                     <div>
                       <p className="text-[13px] font-primary font-semibold text-[var(--foreground)]">{agent.name}</p>
