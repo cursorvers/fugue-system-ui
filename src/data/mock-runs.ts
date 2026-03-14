@@ -15,7 +15,7 @@ export const mockRuns: readonly Run[] = [
     name: "Code review: auth refactor",
     status: "completed",
     duration: "8s",
-    agent: "GLM-4.7",
+    agent: "GLM",
     startedAt: "2026-02-10T00:55:00Z",
     completedAt: "2026-02-10T00:55:08Z",
   },

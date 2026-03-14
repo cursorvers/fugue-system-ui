@@ -13,7 +13,7 @@ export const mockAgents: readonly Agent[] = [
   },
   {
     id: "agent-glm",
-    name: "GLM-4.7",
+    name: "GLM",
     role: "reviewer",
     status: "active",
     tasks: 31,

@@ -97,7 +97,7 @@ export default function HelpPage() {
          ┌─────────────────────────┐
          │ Execution Tier          │
          │ ├── Codex (Security)    │
-         │ ├── GLM-4.7 (Review)    │
+         │ ├── GLM (Review)        │
          │ ├── Gemini (UI/UX)      │
          │ └── Pencil (Design)     │
          └─────────────────────────┘
