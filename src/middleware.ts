@@ -91,6 +91,10 @@ function authenticatedResponse(request: NextRequest, email: string, role: string
 }
 
 export async function middleware(request: NextRequest) {
+  if (!CF_ACCESS_AUD) {
+    return NextResponse.next();
+  }
+
   // 1. App JWT cookie
   const appToken = request.cookies.get("fugue-auth")?.value;
   if (appToken) {

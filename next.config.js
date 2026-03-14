@@ -15,7 +15,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob:",
-              "connect-src 'self' wss://cockpit-public-ws.masa-stage1.workers.dev https://*.supabase.co https://*.sentry.io",
+              "connect-src 'self' wss://cockpit-public-ws.masa-stage1.workers.dev https://*.supabase.co wss://*.supabase.co https://*.sentry.io",
               "manifest-src 'self'",
               "frame-ancestors 'none'",
             ].join("; "),
