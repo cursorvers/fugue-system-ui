@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const GLM_API_URL = 'https://api.z.ai/api/coding/paas/v4/chat/completions';
 
 async function getSystemContext(): Promise<string> {
   const [agentsRes, tasksRes, runsRes] = await Promise.all([
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         Authorization: 'Bearer ' + (process.env.GLM_API_KEY || ''),
       },
       body: JSON.stringify({
-        model: 'glm-4.5-flash',
+        model: 'glm-5',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message },
