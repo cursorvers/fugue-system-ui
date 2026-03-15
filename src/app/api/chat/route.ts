@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { supabase } from '@/lib/supabase';
 
-const anthropic = new Anthropic();
+const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
 async function getSystemContext(): Promise<string> {
   const [agentsRes, tasksRes, runsRes] = await Promise.all([
@@ -33,13 +32,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'message is required' }, { status: 400 });
     }
     const systemPrompt = await getSystemContext();
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: message }],
+    const res = await fetch(GLM_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + (process.env.GLM_API_KEY || ''),
+      },
+      body: JSON.stringify({
+        model: 'glm-4-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message },
+        ],
+        max_tokens: 1024,
+        temperature: 0.7,
+      }),
     });
-    const reply = response.content[0].type === 'text' ? response.content[0].text : '';
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`GLM API error: ${res.status} ${errorText}`);
+    }
+
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content || '';
     return NextResponse.json({ reply });
   } catch (err: unknown) {
     console.error('[api/chat]', err);
