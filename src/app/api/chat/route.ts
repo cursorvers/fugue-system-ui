@@ -70,7 +70,7 @@ async function getSystemContext(): Promise<string> {
       ? runs
           .map((r) => {
             const summary = 'summary' in r ? r.summary : r.name;
-            const duration = 'duration_ms' in r ? formatDuration(r.duration_ms) : r.duration;
+            const duration = 'duration_ms' in r ? formatDuration(r.duration_ms) : (r as any).duration ?? '';
             const agent = r.agent ?? 'unknown';
             return '- [' + r.status + '] ' + summary + ' (' + agent + ', ' + duration + ')';
           })
