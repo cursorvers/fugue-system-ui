@@ -18,7 +18,7 @@ import { useExecutionPlan } from "@/hooks/useExecutionPlan";
 import { useChatOrchestration } from "@/hooks/useChatOrchestration";
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket";
 import { BottomTabBar } from "@/components/BottomTabBar";
-import { generateMockResponse } from "@/lib/mock-chat-responder";
+import { routeChatIntent } from "@/lib/chat-intent-router";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import type { Message } from "@/types/chat";
 
@@ -84,28 +84,11 @@ function ChatContent() {
     updateStepStatus,
   });
 
-  // Track pending WS responses to cancel mock fallback
-  const pendingMockRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastUserMsgRef = useRef<string | null>(null);
-
-  // Wrap WS handler: cancel mock fallback when real response arrives
-  const wrappedHandleWsMessage = useCallback(
-    (msg: Record<string, unknown>) => {
-      if (pendingMockRef.current && lastUserMsgRef.current) {
-        clearTimeout(pendingMockRef.current);
-        pendingMockRef.current = null;
-        lastUserMsgRef.current = null;
-      }
-      handleWebSocketMessage(msg);
-    },
-    [handleWebSocketMessage]
-  );
-
-  const { isConnected, isConnecting, error, send, sendChat } = useWebSocket({
+  const { isConnected, isConnecting, error, send } = useWebSocket({
     url: WS_URL,
     maxReconnectAttempts: 3,
     reconnectInterval: 5000,
-    onMessage: wrappedHandleWsMessage,
+    onMessage: handleWebSocketMessage,
   });
 
   // Keep send ref up to date for plan approval callbacks
@@ -114,7 +97,7 @@ function ChatContent() {
   }, [send]);
 
   const handleSend = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const userMsgId = `msg-${crypto.randomUUID()}`;
 
       addMessage({
@@ -125,35 +108,23 @@ function ChatContent() {
         status: isConnected ? "pending" : "completed",
       });
 
-      // Send via WS if connected
-      if (isConnected) {
-        sendChat(text);
-        lastUserMsgRef.current = userMsgId;
-      }
-
-      // Schedule mock fallback (cancelled if real WS response arrives)
-      const MOCK_TIMEOUT = isConnected ? 3000 : 800;
-      pendingMockRef.current = setTimeout(() => {
-        pendingMockRef.current = null;
-        lastUserMsgRef.current = null;
-
-        // Update user message status
-        if (isConnected) {
-          updateMessage(userMsgId, { status: "completed" });
-        }
-
-        const response = generateMockResponse(text);
+      try {
+        const response = await routeChatIntent(text);
         addMessage({
-          id: `mock-${crypto.randomUUID()}`,
+          id: `intent-${crypto.randomUUID()}`,
           type: "orchestrator",
           content: response,
           timestamp: new Date(),
           status: "completed",
           routing: { suggestedAgent: "FUGUE", confidence: 1 },
         });
-      }, MOCK_TIMEOUT);
+        updateMessage(userMsgId, { status: "completed" });
+      } catch (routerError) {
+        console.warn("[chat] intent routing failed", routerError);
+        updateMessage(userMsgId, { status: "error" });
+      }
     },
-    [isConnected, addMessage, updateMessage, sendChat]
+    [addMessage, updateMessage]
   );
 
   // Filter out connection spam from old localStorage data
