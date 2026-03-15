@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         Authorization: 'Bearer ' + (process.env.GLM_API_KEY || ''),
       },
       body: JSON.stringify({
-        model: 'glm-4-flash',
+        model: 'glm-4.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message },
