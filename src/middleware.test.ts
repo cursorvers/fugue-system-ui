@@ -6,7 +6,7 @@ beforeEach(() => {
   vi.resetModules();
   process.env.AUTH_SECRET = TEST_SECRET;
   process.env.NEXT_PUBLIC_CF_TEAM_NAME = "fugue";
-  process.env.CF_ACCESS_AUD = "";
+  process.env.CF_ACCESS_AUD = "test-aud-for-middleware";
   process.env.NEXT_PUBLIC_ADMIN_EMAILS = "admin@test.dev";
   process.env.OPERATOR_EMAILS = "operator@test.dev";
 });
